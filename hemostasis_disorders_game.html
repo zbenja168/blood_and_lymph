@@ -1,0 +1,921 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Hemostasis Disorders Study Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #64ffda;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5);
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin: 20px 0;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(135deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+        }
+
+        .score-container {
+            text-align: center;
+            margin: 20px 0;
+            padding: 15px;
+            background: rgba(100, 255, 218, 0.1);
+            border-radius: 10px;
+            border: 2px solid #64ffda;
+        }
+
+        .score {
+            font-size: 1.5em;
+            color: #64ffda;
+            font-weight: bold;
+        }
+
+        .word-bank {
+            position: fixed;
+            top: 50px;
+            right: 20px;
+            width: 320px;
+            max-height: 80vh;
+            background: rgba(30, 30, 50, 0.95);
+            border-radius: 15px;
+            padding: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 2px solid #64ffda;
+            z-index: 1000;
+            cursor: move;
+        }
+
+        .word-bank-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            text-align: center;
+            font-weight: bold;
+            font-size: 1.1em;
+            cursor: move;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px 12px;
+            background: rgba(100, 255, 218, 0.1);
+            border: 2px solid transparent;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            font-size: 0.9em;
+            min-width: 80px;
+        }
+
+        .tab:hover {
+            background: rgba(100, 255, 218, 0.2);
+        }
+
+        .tab.active {
+            background: #64ffda;
+            color: #1a1a2e;
+            border-color: #64ffda;
+            font-weight: bold;
+        }
+
+        .word-bank-content {
+            max-height: 50vh;
+            overflow-y: auto;
+            padding: 10px;
+        }
+
+        .word-bank-content::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .word-bank-content::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+        }
+
+        .word-bank-content::-webkit-scrollbar-thumb {
+            background: #64ffda;
+            border-radius: 10px;
+        }
+
+        .word-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 15px;
+            margin: 8px 0;
+            border-radius: 8px;
+            cursor: move;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .word-item:hover {
+            transform: translateX(-5px);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
+        }
+
+        .word-item.dragging {
+            opacity: 0.5;
+            transform: rotate(5deg);
+        }
+
+        .disorders-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(500px, 1fr));
+            gap: 25px;
+            margin-bottom: 100px;
+            padding-right: 360px;
+        }
+
+        .disorder-card {
+            background: rgba(30, 30, 50, 0.9);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.3);
+            border: 2px solid rgba(100, 255, 218, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        .disorder-card:hover {
+            border-color: #64ffda;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.4);
+        }
+
+        .disorder-title {
+            font-size: 1.5em;
+            color: #64ffda;
+            margin-bottom: 20px;
+            text-align: center;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(100, 255, 218, 0.3);
+        }
+
+        .drop-zone-container {
+            margin: 15px 0;
+        }
+
+        .category-label {
+            color: #f093fb;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 0.95em;
+        }
+
+        .drop-zone {
+            min-height: 60px;
+            border: 2px dashed rgba(100, 255, 218, 0.3);
+            border-radius: 8px;
+            padding: 12px;
+            background: rgba(0, 0, 0, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #64ffda;
+            background: rgba(100, 255, 218, 0.1);
+            border-style: solid;
+        }
+
+        .drop-zone.correct {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4caf50;
+            border-style: solid;
+        }
+
+        .drop-zone.incorrect {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+            border-style: solid;
+        }
+
+        .dropped-item {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            padding: 10px 15px;
+            border-radius: 8px;
+            margin: 5px 0;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-size: 0.95em;
+            line-height: 1.4;
+        }
+
+        .dropped-item:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .dropped-item.correct {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+        }
+
+        .dropped-item.incorrect {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+        }
+
+        .summary-modal {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(30, 30, 50, 0.98);
+            padding: 30px;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            z-index: 2000;
+            max-width: 90%;
+            max-height: 90vh;
+            overflow-y: auto;
+            border: 2px solid #64ffda;
+        }
+
+        .summary-modal h2 {
+            color: #64ffda;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .summary-content {
+            display: grid;
+            gap: 15px;
+        }
+
+        .summary-item {
+            background: rgba(100, 255, 218, 0.1);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #64ffda;
+        }
+
+        .summary-disorder {
+            color: #f093fb;
+            font-weight: bold;
+            margin-bottom: 5px;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 1999;
+        }
+
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 5px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .close-modal:hover {
+            background: #d32f2f;
+        }
+
+        @media (max-width: 1400px) {
+            .disorders-container {
+                padding-right: 20px;
+            }
+            
+            .word-bank {
+                position: relative;
+                width: 100%;
+                max-width: 500px;
+                margin: 0 auto 30px;
+                right: auto;
+                top: auto;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .disorders-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .header h1 {
+                font-size: 1.8em;
+            }
+            
+            .controls {
+                flex-direction: column;
+            }
+            
+            .btn {
+                width: 100%;
+            }
+        }
+
+        .hint-highlight {
+            animation: pulse 1s ease-in-out;
+            border-color: #fee140 !important;
+            border-style: solid !important;
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🩸 Hemostasis Disorders Study Game</h1>
+        <div class="score-container">
+            <div class="score">
+                <span id="correct-count">0</span> / <span id="total-count">0</span> Correct
+                <span style="margin-left: 20px;">Items Remaining: <span id="items-remaining">0</span></span>
+            </div>
+        </div>
+        <div class="controls">
+            <button class="btn btn-primary" onclick="showSummary()">📋 Show Summary</button>
+            <button class="btn btn-secondary" onclick="showHint()">💡 Hint</button>
+            <button class="btn btn-success" onclick="showAllAnswers()">👁️ Show All Answers</button>
+            <button class="btn btn-warning" onclick="resetGame()">🔄 Reset</button>
+        </div>
+    </div>
+
+    <div class="word-bank" id="wordBank">
+        <div class="word-bank-header" id="wordBankHeader">
+            📚 Word Bank
+        </div>
+        <div class="tabs" id="tabs"></div>
+        <div class="word-bank-content" id="wordBankContent"></div>
+    </div>
+
+    <div class="disorders-container" id="disordersContainer"></div>
+
+    <div class="modal-overlay" id="modalOverlay" onclick="closeSummary()"></div>
+    <div class="summary-modal" id="summaryModal">
+        <button class="close-modal" onclick="closeSummary()">✕</button>
+        <h2>📊 Complete Answer Key</h2>
+        <div class="summary-content" id="summaryContent"></div>
+    </div>
+
+    <script>
+        const categories = [
+            'Clinical Features',
+            'Pathophysiology',
+            'Lab Findings',
+            'Treatment',
+            'Genetics/Cause'
+        ];
+
+        const disorders = [
+            {
+                name: 'Hemophilia A',
+                answers: {
+                    'Clinical Features': 'Easy bruising, uncontrolled bleeding after trauma/surgery, hemarthrosis (joint bleeding), deep tissue/intracranial bleeds',
+                    'Pathophysiology': 'Factor VIII deficiency → impaired activation of Factor X → defective fibrin formation',
+                    'Lab Findings': 'Prolonged aPTT, normal PT, corrects with mixing study, decreased Factor VIII activity (<30% symptomatic, <1% severe)',
+                    'Treatment': 'Recombinant Factor VIII infusion, Desmopressin for mild cases (releases vWF to stabilize Factor VIII)',
+                    'Genetics/Cause': 'X-linked recessive (Factor VIII gene), males affected, 30% spontaneous mutations'
+                }
+            },
+            {
+                name: 'Hemophilia B',
+                answers: {
+                    'Clinical Features': 'Identical to Hemophilia A: easy bruising, hemarthrosis, uncontrolled hemorrhage',
+                    'Pathophysiology': 'Factor IX deficiency → impaired activation of Factor X → defective fibrin formation',
+                    'Lab Findings': 'Prolonged aPTT, normal PT, corrects with mixing study, decreased Factor IX activity (clinically indistinguishable from Hemo A)',
+                    'Treatment': 'Recombinant Factor IX infusion (Desmopressin does NOT work)',
+                    'Genetics/Cause': 'X-linked recessive (Factor IX gene), 4× less common than Hemophilia A'
+                }
+            },
+            {
+                name: 'von Willebrand Disease',
+                answers: {
+                    'Clinical Features': 'Mucosal bleeding (nosebleeds), menorrhagia, easy bruising, excessive wound bleeding, NO petechiae typically',
+                    'Pathophysiology': 'vWF deficiency/defect → impaired platelet adhesion to collagen + Factor VIII instability/degradation',
+                    'Lab Findings': 'Prolonged PTT (if Factor VIII low), decreased vWF antigen, abnormal ristocetin cofactor test, decreased vWF activity',
+                    'Treatment': 'Desmopressin (releases vWF from endothelium), vWF concentrates, antifibrinolytics (tranexamic acid), avoid aspirin/NSAIDs',
+                    'Genetics/Cause': 'Autosomal dominant (most common inherited bleeding disorder), Type 1 (partial), Type 2 (dysfunctional), Type 3 (complete absence)'
+                }
+            },
+            {
+                name: 'DIC',
+                answers: {
+                    'Clinical Features': 'Bleeding from IV sites, petechiae, multi-organ failure (renal, respiratory, CNS), shock, thrombosis (gangrene)',
+                    'Pathophysiology': 'Widespread coagulation activation → consumption of platelets/factors → thrombosis + hemorrhage simultaneously',
+                    'Lab Findings': 'Prolonged PT/PTT/INR, decreased platelets & fibrinogen, elevated D-dimer/FDP, schistocytes on smear (MAHA)',
+                    'Treatment': 'Treat underlying cause (antibiotics for sepsis), transfuse platelets/RBC/FFP/cryo as needed, heparin if thrombosis predominates',
+                    'Genetics/Cause': 'MOST causes: Malignancy (adenocarcinoma), Obstetric complications, Sepsis (gram-negative), Trauma/burns; dumpers vs rippers'
+                }
+            },
+            {
+                name: 'Antiphospholipid Syndrome',
+                answers: {
+                    'Clinical Features': 'Recurrent DVT/PE, stroke, MI in young patients, recurrent miscarriages (>3), livedo reticularis',
+                    'Pathophysiology': 'Antiphospholipid antibodies + 2nd hit (surgery, pregnancy, OCP) → hypercoagulability via altered coagulation',
+                    'Lab Findings': 'Prolonged aPTT (paradoxical), positive lupus anticoagulant, anticardiolipin antibodies, anti-β2-glycoprotein-I (confirm 12 weeks apart)',
+                    'Treatment': 'Anticoagulation (warfarin) long-term after thrombosis, LMWH + aspirin during pregnancy',
+                    'Genetics/Cause': '50% idiopathic, 50% with SLE or autoimmune disease, antibodies against phospholipids'
+                }
+            },
+            {
+                name: 'Factor V Leiden',
+                answers: {
+                    'Clinical Features': 'Recurrent DVT/PE, thrombosis in young (<45), family history, lack of typical risk factors',
+                    'Pathophysiology': 'Mutated Factor V (Arg→Gln) resistant to Protein C inactivation → prolonged coagulation activation',
+                    'Lab Findings': 'Activated Protein C resistance assay, genetic testing for Factor V Leiden mutation',
+                    'Treatment': 'Anticoagulation (heparin, warfarin, DOACs) for acute thrombosis, prophylaxis before surgery/pregnancy',
+                    'Genetics/Cause': 'Autosomal dominant, most common hereditary thrombophilia (40-50% of cases), European ancestry'
+                }
+            },
+            {
+                name: 'Factor II (Prothrombin) Mutation',
+                answers: {
+                    'Clinical Features': 'Recurrent venous thrombosis (DVT/PE), young age, family history',
+                    'Pathophysiology': 'G20210A mutation → overproduction of prothrombin → excess thrombin → increased fibrin formation',
+                    'Lab Findings': 'Genetic testing for prothrombin G20210A mutation, elevated prothrombin levels',
+                    'Treatment': 'Anticoagulation for acute thrombosis, consider prophylaxis during high-risk periods',
+                    'Genetics/Cause': 'Autosomal dominant with variable penetrance, 2nd most common genetic thrombophilia, Northern European'
+                }
+            },
+            {
+                name: 'Protein C/S Deficiency',
+                answers: {
+                    'Clinical Features': 'Recurrent DVT/PE, warfarin-induced skin necrosis (Protein C), purpura fulminans risk',
+                    'Pathophysiology': 'Decreased Protein C or S → cannot inactivate Factors Va & VIIIa → uncontrolled coagulation',
+                    'Lab Findings': 'Decreased Protein C or S levels/activity, genetic testing',
+                    'Treatment': 'Anticoagulation (avoid warfarin initially due to skin necrosis risk), bridge with heparin, Protein C concentrate if available',
+                    'Genetics/Cause': 'Autosomal dominant (inherited) or acquired (liver disease, vitamin K deficiency, warfarin)'
+                }
+            },
+            {
+                name: 'Antithrombin Deficiency',
+                answers: {
+                    'Clinical Features': 'Recurrent severe DVT/PE, young age, heparin resistance',
+                    'Pathophysiology': 'Decreased/defective antithrombin → cannot inhibit thrombin (IIa) & Factors VIIa, IXa, Xa, XIa, XIIa',
+                    'Lab Findings': 'Decreased antithrombin activity (AT-heparin cofactor assay), genetic testing, heparin resistance',
+                    'Treatment': 'Antithrombin concentrate supplementation, alternative anticoagulants (dabigatran), higher heparin doses may be needed',
+                    'Genetics/Cause': 'Autosomal dominant, various gene mutations (no single mutation), or acquired (severe illness, cardiopulmonary bypass)'
+                }
+            }
+        ];
+
+        let currentTab = 'Clinical Features';
+        let usedItems = new Set();
+        let correctPlacements = 0;
+        let draggedElement = null;
+        let wordBankItems = [];
+
+        // Initialize game
+        function initGame() {
+            createWordBank();
+            createDisorderCards();
+            updateScore();
+            makeDraggable();
+        }
+
+        // Create word bank with randomized items
+        function createWordBank() {
+            // Collect all answers
+            const allItems = [];
+            disorders.forEach(disorder => {
+                categories.forEach(category => {
+                    allItems.push({
+                        text: disorder.answers[category],
+                        category: category,
+                        disorder: disorder.name
+                    });
+                });
+            });
+
+            // Randomize order
+            wordBankItems = allItems.sort(() => Math.random() - 0.5);
+
+            // Create tabs
+            const tabsContainer = document.getElementById('tabs');
+            categories.forEach(category => {
+                const tab = document.createElement('div');
+                tab.className = 'tab' + (category === currentTab ? ' active' : '');
+                tab.textContent = category.replace('Clinical Features', 'Clinical').replace('Pathophysiology', 'Patho').replace('Lab Findings', 'Labs').replace('Genetics/Cause', 'Genetics');
+                tab.onclick = () => switchTab(category);
+                tabsContainer.appendChild(tab);
+            });
+
+            updateWordBank();
+        }
+
+        // Switch tabs
+        function switchTab(category) {
+            currentTab = category;
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent.includes(category.split(' ')[0]) || 
+                    (category === 'Clinical Features' && tab.textContent === 'Clinical') ||
+                    (category === 'Pathophysiology' && tab.textContent === 'Patho') ||
+                    (category === 'Lab Findings' && tab.textContent === 'Labs') ||
+                    (category === 'Genetics/Cause' && tab.textContent === 'Genetics')) {
+                    tab.classList.add('active');
+                }
+            });
+            updateWordBank();
+        }
+
+        // Update word bank display
+        function updateWordBank() {
+            const content = document.getElementById('wordBankContent');
+            content.innerHTML = '';
+
+            const itemsInCategory = wordBankItems.filter(item => 
+                item.category === currentTab && !usedItems.has(item.text)
+            );
+
+            itemsInCategory.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'word-item';
+                div.textContent = item.text;
+                div.draggable = true;
+                div.dataset.text = item.text;
+                div.dataset.category = item.category;
+                div.dataset.disorder = item.disorder;
+                
+                div.ondragstart = (e) => {
+                    draggedElement = div;
+                    div.classList.add('dragging');
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', item.text);
+                };
+                
+                div.ondragend = () => {
+                    div.classList.remove('dragging');
+                };
+                
+                content.appendChild(div);
+            });
+
+            document.getElementById('items-remaining').textContent = 
+                wordBankItems.filter(item => !usedItems.has(item.text)).length;
+        }
+
+        // Create disorder cards
+        function createDisorderCards() {
+            const container = document.getElementById('disordersContainer');
+            
+            disorders.forEach(disorder => {
+                const card = document.createElement('div');
+                card.className = 'disorder-card';
+                
+                const title = document.createElement('div');
+                title.className = 'disorder-title';
+                title.textContent = disorder.name;
+                card.appendChild(title);
+                
+                categories.forEach(category => {
+                    const dropZoneContainer = document.createElement('div');
+                    dropZoneContainer.className = 'drop-zone-container';
+                    
+                    const label = document.createElement('div');
+                    label.className = 'category-label';
+                    label.textContent = category + ':';
+                    dropZoneContainer.appendChild(label);
+                    
+                    const dropZone = document.createElement('div');
+                    dropZone.className = 'drop-zone';
+                    dropZone.dataset.disorder = disorder.name;
+                    dropZone.dataset.category = category;
+                    dropZone.dataset.answer = disorder.answers[category];
+                    
+                    dropZone.ondragover = (e) => {
+                        e.preventDefault();
+                        dropZone.classList.add('drag-over');
+                    };
+                    
+                    dropZone.ondragleave = () => {
+                        dropZone.classList.remove('drag-over');
+                    };
+                    
+                    dropZone.ondrop = (e) => {
+                        e.preventDefault();
+                        dropZone.classList.remove('drag-over');
+                        handleDrop(dropZone, draggedElement);
+                    };
+                    
+                    dropZoneContainer.appendChild(dropZone);
+                    card.appendChild(dropZoneContainer);
+                });
+                
+                container.appendChild(card);
+            });
+
+            document.getElementById('total-count').textContent = disorders.length * categories.length;
+        }
+
+        // Handle drop
+        function handleDrop(dropZone, draggedItem) {
+            if (!draggedItem) return;
+            
+            const droppedText = draggedItem.dataset.text;
+            const correctAnswer = dropZone.dataset.answer;
+            const isCorrect = droppedText === correctAnswer;
+            
+            // Remove existing item if any
+            const existingItem = dropZone.querySelector('.dropped-item');
+            if (existingItem) {
+                const oldText = existingItem.dataset.text;
+                usedItems.delete(oldText);
+                existingItem.remove();
+                
+                // Return old item to word bank at the top
+                const oldItemData = wordBankItems.find(item => item.text === oldText);
+                if (oldItemData) {
+                    wordBankItems = [oldItemData, ...wordBankItems.filter(item => item.text !== oldText)];
+                }
+            }
+            
+            // Create dropped item
+            const droppedDiv = document.createElement('div');
+            droppedDiv.className = 'dropped-item' + (isCorrect ? ' correct' : ' incorrect');
+            droppedDiv.textContent = droppedText;
+            droppedDiv.dataset.text = droppedText;
+            
+            // Double-click to return to word bank
+            droppedDiv.ondblclick = () => {
+                usedItems.delete(droppedText);
+                droppedDiv.remove();
+                dropZone.classList.remove('correct', 'incorrect');
+                
+                // Add back to top of word bank
+                const itemData = wordBankItems.find(item => item.text === droppedText);
+                if (itemData) {
+                    wordBankItems = [itemData, ...wordBankItems.filter(item => item.text !== droppedText)];
+                }
+                
+                updateWordBank();
+                updateScore();
+            };
+            
+            // Make draggable back to word bank
+            droppedDiv.draggable = true;
+            droppedDiv.ondragstart = (e) => {
+                draggedElement = droppedDiv;
+                e.dataTransfer.setData('text/plain', droppedText);
+            };
+            
+            dropZone.appendChild(droppedDiv);
+            dropZone.classList.remove('correct', 'incorrect');
+            dropZone.classList.add(isCorrect ? 'correct' : 'incorrect');
+            
+            usedItems.add(droppedText);
+            updateWordBank();
+            updateScore();
+        }
+
+        // Update score
+        function updateScore() {
+            correctPlacements = document.querySelectorAll('.dropped-item.correct').length;
+            document.getElementById('correct-count').textContent = correctPlacements;
+        }
+
+        // Show hint
+        function showHint() {
+            const emptyZones = Array.from(document.querySelectorAll('.drop-zone')).filter(zone => 
+                !zone.querySelector('.dropped-item')
+            );
+            
+            if (emptyZones.length === 0) {
+                alert('All zones are filled! Use "Show All Answers" to check your work.');
+                return;
+            }
+            
+            const randomZone = emptyZones[Math.floor(Math.random() * emptyZones.length)];
+            randomZone.classList.add('hint-highlight');
+            
+            // Switch to appropriate tab
+            const category = randomZone.dataset.category;
+            switchTab(category);
+            
+            // Scroll to zone
+            randomZone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            
+            setTimeout(() => {
+                randomZone.classList.remove('hint-highlight');
+            }, 2000);
+        }
+
+        // Show all answers
+        function showAllAnswers() {
+            if (!confirm('This will reveal all correct answers. Continue?')) return;
+            
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                const answer = zone.dataset.answer;
+                
+                // Remove existing item if any
+                const existingItem = zone.querySelector('.dropped-item');
+                if (existingItem) {
+                    usedItems.delete(existingItem.dataset.text);
+                    existingItem.remove();
+                }
+                
+                // Add correct answer
+                const droppedDiv = document.createElement('div');
+                droppedDiv.className = 'dropped-item correct';
+                droppedDiv.textContent = answer;
+                droppedDiv.dataset.text = answer;
+                
+                droppedDiv.ondblclick = () => {
+                    usedItems.delete(answer);
+                    droppedDiv.remove();
+                    zone.classList.remove('correct', 'incorrect');
+                    
+                    const itemData = wordBankItems.find(item => item.text === answer);
+                    if (itemData) {
+                        wordBankItems = [itemData, ...wordBankItems.filter(item => item.text !== answer)];
+                    }
+                    
+                    updateWordBank();
+                    updateScore();
+                };
+                
+                zone.appendChild(droppedDiv);
+                zone.classList.remove('incorrect');
+                zone.classList.add('correct');
+                
+                usedItems.add(answer);
+            });
+            
+            updateWordBank();
+            updateScore();
+        }
+
+        // Show summary
+        function showSummary() {
+            const content = document.getElementById('summaryContent');
+            content.innerHTML = '';
+            
+            disorders.forEach(disorder => {
+                const item = document.createElement('div');
+                item.className = 'summary-item';
+                
+                let html = `<div class="summary-disorder">${disorder.name}</div>`;
+                categories.forEach(category => {
+                    html += `<div style="margin: 8px 0;"><strong>${category}:</strong> ${disorder.answers[category]}</div>`;
+                });
+                
+                item.innerHTML = html;
+                content.appendChild(item);
+            });
+            
+            document.getElementById('modalOverlay').style.display = 'block';
+            document.getElementById('summaryModal').style.display = 'block';
+        }
+
+        // Close summary
+        function closeSummary() {
+            document.getElementById('modalOverlay').style.display = 'none';
+            document.getElementById('summaryModal').style.display = 'none';
+        }
+
+        // Reset game
+        function resetGame() {
+            if (!confirm('This will reset all your progress. Continue?')) return;
+            
+            usedItems.clear();
+            correctPlacements = 0;
+            
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.innerHTML = '';
+                zone.classList.remove('correct', 'incorrect');
+            });
+            
+            // Re-randomize word bank
+            wordBankItems = wordBankItems.sort(() => Math.random() - 0.5);
+            
+            updateWordBank();
+            updateScore();
+        }
+
+        // Make word bank draggable
+        function makeDraggable() {
+            const wordBank = document.getElementById('wordBank');
+            const header = document.getElementById('wordBankHeader');
+            let isDragging = false;
+            let currentX;
+            let currentY;
+            let initialX;
+            let initialY;
+            let xOffset = 0;
+            let yOffset = 0;
+
+            header.addEventListener('mousedown', dragStart);
+            document.addEventListener('mousemove', drag);
+            document.addEventListener('mouseup', dragEnd);
+
+            function dragStart(e) {
+                if (e.target === header) {
+                    initialX = e.clientX - xOffset;
+                    initialY = e.clientY - yOffset;
+                    isDragging = true;
+                }
+            }
+
+            function drag(e) {
+                if (isDragging) {
+                    e.preventDefault();
+                    currentX = e.clientX - initialX;
+                    currentY = e.clientY - initialY;
+                    xOffset = currentX;
+                    yOffset = currentY;
+                    setTranslate(currentX, currentY, wordBank);
+                }
+            }
+
+            function dragEnd() {
+                isDragging = false;
+            }
+
+            function setTranslate(xPos, yPos, el) {
+                el.style.transform = `translate(${xPos}px, ${yPos}px)`;
+            }
+        }
+
+        // Initialize on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>

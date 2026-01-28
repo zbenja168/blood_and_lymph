@@ -1,0 +1,883 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Platelet Disorders Study Game - AWSOM</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e4e4e4;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 20px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .header h1 {
+            color: #64b5f6;
+            font-size: 2.2em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .header p {
+            color: #90caf9;
+            font-size: 1.1em;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .control-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .control-btn:active {
+            transform: translateY(0);
+        }
+
+        .score-panel {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            padding: 15px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .score-item {
+            text-align: center;
+        }
+
+        .score-label {
+            color: #90caf9;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+        }
+
+        .score-value {
+            color: #64b5f6;
+            font-size: 1.8em;
+            font-weight: bold;
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            position: relative;
+        }
+
+        .word-bank {
+            position: sticky;
+            top: 20px;
+            width: 320px;
+            max-height: calc(100vh - 40px);
+            background: rgba(30, 30, 46, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .word-bank-header {
+            text-align: center;
+            margin-bottom: 15px;
+            padding-bottom: 15px;
+            border-bottom: 2px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .word-bank-header h2 {
+            color: #64b5f6;
+            font-size: 1.4em;
+            margin-bottom: 8px;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 80px;
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(100, 181, 246, 0.3);
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+            color: #90caf9;
+        }
+
+        .tab:hover {
+            background: rgba(100, 181, 246, 0.1);
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .word-bank-items {
+            flex: 1;
+            overflow-y: auto;
+            padding-right: 10px;
+        }
+
+        .word-bank-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .word-bank-items::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 4px;
+        }
+
+        .word-bank-items::-webkit-scrollbar-thumb {
+            background: rgba(100, 181, 246, 0.3);
+            border-radius: 4px;
+        }
+
+        .word-bank-items::-webkit-scrollbar-thumb:hover {
+            background: rgba(100, 181, 246, 0.5);
+        }
+
+        .draggable {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 12px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: move;
+            border: 2px solid rgba(100, 181, 246, 0.3);
+            transition: all 0.3s ease;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .draggable:hover {
+            background: linear-gradient(135deg, #34495e 0%, #2c3e50 100%);
+            border-color: #64b5f6;
+            transform: translateX(5px);
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .cards-container {
+            flex: 1;
+            display: grid;
+            gap: 20px;
+        }
+
+        .disorder-card {
+            background: rgba(30, 30, 46, 0.9);
+            border-radius: 15px;
+            padding: 25px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(100, 181, 246, 0.2);
+        }
+
+        .disorder-title {
+            color: #64b5f6;
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid rgba(100, 181, 246, 0.3);
+            text-align: center;
+        }
+
+        .drop-zones {
+            display: grid;
+            gap: 15px;
+        }
+
+        .drop-zone {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(100, 181, 246, 0.3);
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 80px;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone-label {
+            color: #90caf9;
+            font-size: 0.9em;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(100, 181, 246, 0.1);
+            border-color: #64b5f6;
+            border-style: solid;
+        }
+
+        .drop-zone.correct {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4caf50;
+            border-style: solid;
+        }
+
+        .drop-zone.incorrect {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+            border-style: solid;
+        }
+
+        .dropped-item {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 12px;
+            border-radius: 8px;
+            margin-top: 10px;
+            border: 2px solid rgba(100, 181, 246, 0.3);
+            cursor: move;
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .summary-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .summary-modal.active {
+            display: flex;
+        }
+
+        .summary-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 30px;
+            border-radius: 15px;
+            max-width: 800px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+            border: 2px solid rgba(100, 181, 246, 0.3);
+        }
+
+        .summary-content h2 {
+            color: #64b5f6;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .summary-disorder {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+            border-left: 4px solid #64b5f6;
+        }
+
+        .summary-disorder h3 {
+            color: #90caf9;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .summary-category {
+            margin-bottom: 10px;
+        }
+
+        .summary-category strong {
+            color: #64b5f6;
+        }
+
+        .close-btn {
+            background: #f44336;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            margin-top: 20px;
+        }
+
+        .close-btn:hover {
+            background: #d32f2f;
+        }
+
+        @media (max-width: 1024px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .word-bank {
+                position: relative;
+                width: 100%;
+                max-height: 400px;
+            }
+        }
+
+        .hint-highlight {
+            animation: pulse 2s infinite;
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                border-color: rgba(100, 181, 246, 0.3);
+            }
+            50% {
+                border-color: #ffeb3b;
+                box-shadow: 0 0 20px rgba(255, 235, 59, 0.5);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🩸 Platelet Disorders Study Game</h1>
+        <p>Drag and match clinical features, pathophysiology, labs, and treatments to each disorder</p>
+    </div>
+
+    <div class="controls">
+        <button class="control-btn" onclick="showSummary()">📋 Show Summary</button>
+        <button class="control-btn" onclick="giveHint()">💡 Hint</button>
+        <button class="control-btn" onclick="showAllAnswers()">✓ Show All Answers</button>
+        <button class="control-btn" onclick="resetGame()">🔄 Reset</button>
+    </div>
+
+    <div class="score-panel">
+        <div class="score-item">
+            <div class="score-label">Score</div>
+            <div class="score-value" id="score">0</div>
+        </div>
+        <div class="score-item">
+            <div class="score-label">Remaining</div>
+            <div class="score-value" id="remaining">0</div>
+        </div>
+        <div class="score-item">
+            <div class="score-label">Total Items</div>
+            <div class="score-value" id="total">0</div>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="word-bank">
+            <div class="word-bank-header">
+                <h2>Word Bank</h2>
+            </div>
+            <div class="tabs" id="tabs"></div>
+            <div class="word-bank-items" id="wordBankItems"></div>
+        </div>
+
+        <div class="cards-container" id="cardsContainer"></div>
+    </div>
+
+    <div class="summary-modal" id="summaryModal">
+        <div class="summary-content" id="summaryContent"></div>
+    </div>
+
+    <script>
+        const gameData = {
+            categories: [
+                "Clinical Features",
+                "Pathophysiology",
+                "Lab Findings",
+                "Treatment",
+                "Key Associations"
+            ],
+            disorders: [
+                {
+                    name: "Bernard-Soulier Syndrome",
+                    answers: {
+                        "Clinical Features": "Severe hemorrhage, thrombocytopenia, mucocutaneous bleeding",
+                        "Pathophysiology": "GPIb receptor defect → impaired platelet adhesion to vWF",
+                        "Lab Findings": "Giant platelets, decreased platelet count, abnormal PFA-100",
+                        "Treatment": "Platelet transfusion, recombinant Factor VIIa, eltrombopag",
+                        "Key Associations": "Autosomal recessive, glomerulonephritis, sensorineural deafness, cataracts"
+                    }
+                },
+                {
+                    name: "Glanzmann Thrombasthenia",
+                    answers: {
+                        "Clinical Features": "Mucocutaneous bleeding, leukocytosis at birth, delayed umbilical cord separation",
+                        "Pathophysiology": "GPIIb/IIIa receptor defect → impaired platelet aggregation",
+                        "Lab Findings": "Normal-appearing platelets, normal platelet count, abnormal PFA-100",
+                        "Treatment": "Platelet transfusion, hematopoietic stem cell transplant, high-dose estrogen",
+                        "Key Associations": "Autosomal recessive, leukocyte adhesion deficiency, severe bacterial infections"
+                    }
+                },
+                {
+                    name: "Gray Platelet Syndrome",
+                    answers: {
+                        "Clinical Features": "Mucocutaneous bleeding, progressive thrombocytopenia",
+                        "Pathophysiology": "Absent or decreased α-granules → impaired platelet plug formation",
+                        "Lab Findings": "Gray/empty-appearing giant platelets, elevated B12",
+                        "Treatment": "Platelet transfusion, thrombopoietin agonists (eltrombopag)",
+                        "Key Associations": "Variable inheritance, myelofibrosis, splenomegaly"
+                    }
+                },
+                {
+                    name: "δ-Granule Deficiency",
+                    answers: {
+                        "Clinical Features": "Mucocutaneous bleeding, recurrent infections",
+                        "Pathophysiology": "Absent or decreased δ-granules → reduced clotting factors",
+                        "Lab Findings": "Normal-appearing platelets, electron microscopy shows absent granules",
+                        "Treatment": "Antimicrobial prophylaxis, GM-CSF, hematopoietic cell transplant",
+                        "Key Associations": "Often with Wiskott-Aldrich or Chediak-Higashi syndrome"
+                    }
+                },
+                {
+                    name: "Immune Thrombocytopenia (ITP)",
+                    answers: {
+                        "Clinical Features": "Petechiae, purpura, easy bruising, heavy menses, nosebleeds",
+                        "Pathophysiology": "IgG autoantibodies bind platelet GPIIb/IIIa → splenic macrophage destruction",
+                        "Lab Findings": "Isolated thrombocytopenia, occasional large platelets, normal PT/PTT",
+                        "Treatment": "Corticosteroids (prednisone), rituximab, TPO agonists, splenectomy, IVIG",
+                        "Key Associations": "Chronic form in adult females <40, acute form in children post-viral illness"
+                    }
+                },
+                {
+                    name: "Thrombotic Thrombocytopenic Purpura (TTP)",
+                    answers: {
+                        "Clinical Features": "Pentad: fever, neurologic symptoms, MAHA, thrombocytopenia, AKI",
+                        "Pathophysiology": "ADAMTS13 deficiency → persistent ULvWF multimers → microthrombi",
+                        "Lab Findings": "Schistocytes, thrombocytopenia, elevated LDH/bilirubin, normal PT/PTT",
+                        "Treatment": "Urgent plasmapheresis, corticosteroids, rituximab",
+                        "Key Associations": "Adults, female predominance, lupus, pregnancy, obesity"
+                    }
+                },
+                {
+                    name: "Hemolytic-Uremic Syndrome (HUS)",
+                    answers: {
+                        "Clinical Features": "Bloody diarrhea, vomiting, dehydration, petechiae, AKI",
+                        "Pathophysiology": "Shiga toxin from E. coli O157:H7 → endothelial damage → microthrombi",
+                        "Lab Findings": "Schistocytes, thrombocytopenia, elevated creatinine, normal PT/PTT",
+                        "Treatment": "Supportive care: IV fluids, electrolyte correction, renal support",
+                        "Key Associations": "Children <5 years, post-diarrheal illness, no neurologic findings"
+                    }
+                }
+            ]
+        };
+
+        let currentTab = "Clinical Features";
+        let score = 0;
+        let correctAnswers = 0;
+        let allItems = [];
+        let usedItems = new Set();
+        let emptyDropZones = [];
+
+        function initGame() {
+            // Create tabs
+            const tabsContainer = document.getElementById('tabs');
+            gameData.categories.forEach(category => {
+                const tab = document.createElement('div');
+                tab.className = `tab ${category === currentTab ? 'active' : ''}`;
+                tab.textContent = category;
+                tab.onclick = () => switchTab(category);
+                tabsContainer.appendChild(tab);
+            });
+
+            // Collect all items and shuffle
+            gameData.disorders.forEach(disorder => {
+                gameData.categories.forEach(category => {
+                    allItems.push({
+                        text: disorder.answers[category],
+                        category: category,
+                        disorder: disorder.name
+                    });
+                });
+            });
+
+            // Shuffle items
+            allItems = shuffleArray(allItems);
+
+            // Create disorder cards
+            const cardsContainer = document.getElementById('cardsContainer');
+            gameData.disorders.forEach(disorder => {
+                const card = document.createElement('div');
+                card.className = 'disorder-card';
+                
+                const title = document.createElement('div');
+                title.className = 'disorder-title';
+                title.textContent = disorder.name;
+                card.appendChild(title);
+
+                const dropZones = document.createElement('div');
+                dropZones.className = 'drop-zones';
+
+                gameData.categories.forEach(category => {
+                    const dropZone = document.createElement('div');
+                    dropZone.className = 'drop-zone';
+                    dropZone.dataset.disorder = disorder.name;
+                    dropZone.dataset.category = category;
+                    dropZone.dataset.answer = disorder.answers[category];
+
+                    const label = document.createElement('div');
+                    label.className = 'drop-zone-label';
+                    label.textContent = category;
+                    dropZone.appendChild(label);
+
+                    setupDropZone(dropZone);
+                    dropZones.appendChild(dropZone);
+                    emptyDropZones.push(dropZone);
+                });
+
+                card.appendChild(dropZones);
+                cardsContainer.appendChild(card);
+            });
+
+            updateWordBank();
+            updateScore();
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function switchTab(category) {
+            currentTab = category;
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent === category) {
+                    tab.classList.add('active');
+                }
+            });
+            updateWordBank();
+        }
+
+        function updateWordBank() {
+            const container = document.getElementById('wordBankItems');
+            container.innerHTML = '';
+
+            const filteredItems = allItems.filter(item => 
+                item.category === currentTab && !usedItems.has(item.text)
+            );
+
+            filteredItems.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'draggable';
+                div.textContent = item.text;
+                div.draggable = true;
+                div.dataset.category = item.category;
+                div.dataset.answer = item.text;
+
+                div.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', item.text);
+                    e.dataTransfer.setData('category', item.category);
+                    div.classList.add('dragging');
+                });
+
+                div.addEventListener('dragend', () => {
+                    div.classList.remove('dragging');
+                });
+
+                container.appendChild(div);
+            });
+        }
+
+        function setupDropZone(dropZone) {
+            dropZone.addEventListener('dragover', (e) => {
+                e.preventDefault();
+                dropZone.classList.add('drag-over');
+            });
+
+            dropZone.addEventListener('dragleave', () => {
+                dropZone.classList.remove('drag-over');
+            });
+
+            dropZone.addEventListener('drop', (e) => {
+                e.preventDefault();
+                dropZone.classList.remove('drag-over');
+
+                const droppedText = e.dataTransfer.getData('text/plain');
+                const droppedCategory = e.dataTransfer.getData('category');
+
+                // Check if already has an item
+                const existingItem = dropZone.querySelector('.dropped-item');
+                if (existingItem) {
+                    return;
+                }
+
+                // Check if correct
+                const isCorrect = droppedText === dropZone.dataset.answer;
+
+                const droppedItem = document.createElement('div');
+                droppedItem.className = 'dropped-item';
+                droppedItem.textContent = droppedText;
+                droppedItem.draggable = true;
+                droppedItem.dataset.answer = droppedText;
+                droppedItem.dataset.category = droppedCategory;
+
+                // Set up drag to return to word bank
+                droppedItem.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', droppedText);
+                    e.dataTransfer.setData('category', droppedCategory);
+                    e.dataTransfer.setData('fromDropZone', 'true');
+                    droppedItem.classList.add('dragging');
+                });
+
+                droppedItem.addEventListener('dragend', () => {
+                    droppedItem.classList.remove('dragging');
+                });
+
+                dropZone.appendChild(droppedItem);
+
+                if (isCorrect) {
+                    dropZone.classList.add('correct');
+                    score += 10;
+                    correctAnswers++;
+                    usedItems.add(droppedText);
+                    emptyDropZones = emptyDropZones.filter(zone => zone !== dropZone);
+                } else {
+                    dropZone.classList.add('incorrect');
+                }
+
+                updateWordBank();
+                updateScore();
+            });
+        }
+
+        // Allow dragging items back to word bank
+        document.getElementById('wordBankItems').addEventListener('dragover', (e) => {
+            e.preventDefault();
+        });
+
+        document.getElementById('wordBankItems').addEventListener('drop', (e) => {
+            e.preventDefault();
+            const fromDropZone = e.dataTransfer.getData('fromDropZone');
+            
+            if (fromDropZone === 'true') {
+                const droppedText = e.dataTransfer.getData('text/plain');
+                const droppedCategory = e.dataTransfer.getData('category');
+
+                // Find the drop zone that had this item
+                document.querySelectorAll('.drop-zone').forEach(zone => {
+                    const item = zone.querySelector('.dropped-item');
+                    if (item && item.dataset.answer === droppedText) {
+                        zone.removeChild(item);
+                        zone.classList.remove('correct', 'incorrect');
+                        
+                        // If was correct, remove from used items and adjust score
+                        if (zone.classList.contains('correct') || zone.dataset.answer === droppedText) {
+                            usedItems.delete(droppedText);
+                            if (zone.dataset.answer === droppedText) {
+                                score -= 10;
+                                correctAnswers--;
+                            }
+                        }
+                        
+                        if (!emptyDropZones.includes(zone)) {
+                            emptyDropZones.push(zone);
+                        }
+                    }
+                });
+
+                // Add back to word bank at the top
+                const container = document.getElementById('wordBankItems');
+                const div = document.createElement('div');
+                div.className = 'draggable';
+                div.textContent = droppedText;
+                div.draggable = true;
+                div.dataset.category = droppedCategory;
+                div.dataset.answer = droppedText;
+
+                div.addEventListener('dragstart', (e) => {
+                    e.dataTransfer.setData('text/plain', droppedText);
+                    e.dataTransfer.setData('category', droppedCategory);
+                    div.classList.add('dragging');
+                });
+
+                div.addEventListener('dragend', () => {
+                    div.classList.remove('dragging');
+                });
+
+                container.insertBefore(div, container.firstChild);
+                updateScore();
+            }
+        });
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('remaining').textContent = allItems.length - usedItems.size;
+            document.getElementById('total').textContent = allItems.length;
+        }
+
+        function giveHint() {
+            // Remove previous hints
+            document.querySelectorAll('.hint-highlight').forEach(el => {
+                el.classList.remove('hint-highlight');
+            });
+
+            // Find an empty drop zone
+            if (emptyDropZones.length > 0) {
+                const randomZone = emptyDropZones[Math.floor(Math.random() * emptyDropZones.length)];
+                randomZone.classList.add('hint-highlight');
+                
+                // Switch to the correct tab
+                const category = randomZone.dataset.category;
+                switchTab(category);
+
+                setTimeout(() => {
+                    randomZone.classList.remove('hint-highlight');
+                }, 3000);
+            } else {
+                alert('All drop zones are filled!');
+            }
+        }
+
+        function showAllAnswers() {
+            if (!confirm('This will show all correct answers. Continue?')) {
+                return;
+            }
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                const existingItem = zone.querySelector('.dropped-item');
+                if (!existingItem) {
+                    const correctAnswer = zone.dataset.answer;
+                    
+                    const droppedItem = document.createElement('div');
+                    droppedItem.className = 'dropped-item';
+                    droppedItem.textContent = correctAnswer;
+                    droppedItem.style.opacity = '0.7';
+                    
+                    zone.appendChild(droppedItem);
+                    zone.classList.add('correct');
+                }
+            });
+
+            usedItems = new Set(allItems.map(item => item.text));
+            updateWordBank();
+        }
+
+        function resetGame() {
+            if (!confirm('Reset the entire game?')) {
+                return;
+            }
+
+            score = 0;
+            correctAnswers = 0;
+            usedItems.clear();
+            emptyDropZones = [];
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                const item = zone.querySelector('.dropped-item');
+                if (item) {
+                    zone.removeChild(item);
+                }
+                zone.classList.remove('correct', 'incorrect', 'hint-highlight');
+                emptyDropZones.push(zone);
+            });
+
+            currentTab = "Clinical Features";
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.classList.remove('active');
+                if (tab.textContent === currentTab) {
+                    tab.classList.add('active');
+                }
+            });
+
+            // Re-shuffle items
+            allItems = shuffleArray(allItems);
+
+            updateWordBank();
+            updateScore();
+        }
+
+        function showSummary() {
+            const modal = document.getElementById('summaryModal');
+            const content = document.getElementById('summaryContent');
+            
+            let html = '<h2>Platelet Disorders - Complete Reference</h2>';
+            
+            gameData.disorders.forEach(disorder => {
+                html += `<div class="summary-disorder">
+                    <h3>${disorder.name}</h3>`;
+                
+                gameData.categories.forEach(category => {
+                    html += `<div class="summary-category">
+                        <strong>${category}:</strong> ${disorder.answers[category]}
+                    </div>`;
+                });
+                
+                html += '</div>';
+            });
+            
+            html += '<button class="close-btn" onclick="closeSummary()">Close</button>';
+            content.innerHTML = html;
+            modal.classList.add('active');
+        }
+
+        function closeSummary() {
+            document.getElementById('summaryModal').classList.remove('active');
+        }
+
+        // Close modal when clicking outside
+        document.getElementById('summaryModal').addEventListener('click', (e) => {
+            if (e.target === e.currentTarget) {
+                closeSummary();
+            }
+        });
+
+        // Initialize game on load
+        initGame();
+    </script>
+</body>
+</html>

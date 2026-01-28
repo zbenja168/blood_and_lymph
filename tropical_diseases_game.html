@@ -1,0 +1,922 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tropical & Hemorrhagic Diseases Study Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            color: #eee;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        h1 {
+            text-align: center;
+            color: #f39c12;
+            margin-bottom: 10px;
+            font-size: 2.2em;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #e67e22;
+            margin-bottom: 25px;
+            font-size: 1.1em;
+        }
+
+        /* Score and Controls */
+        .top-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .score-container {
+            background: rgba(26, 26, 46, 0.7);
+            padding: 12px 20px;
+            border-radius: 10px;
+            border: 2px solid #f39c12;
+            box-shadow: 0 4px 15px rgba(243, 156, 18, 0.3);
+        }
+
+        .score {
+            font-size: 1.3em;
+            color: #f39c12;
+            font-weight: bold;
+        }
+
+        .item-counter {
+            font-size: 0.95em;
+            color: #bbb;
+            margin-top: 5px;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        button {
+            background: linear-gradient(135deg, #e67e22 0%, #d35400 100%);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 1em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(230, 126, 34, 0.4);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        /* Main Layout */
+        .main-layout {
+            display: grid;
+            grid-template-columns: 350px 1fr;
+            gap: 20px;
+        }
+
+        /* Word Bank */
+        .word-bank-container {
+            background: rgba(15, 52, 96, 0.8);
+            border-radius: 15px;
+            padding: 15px;
+            border: 3px solid #f39c12;
+            box-shadow: 0 8px 25px rgba(0,0,0,0.4);
+            height: fit-content;
+            position: sticky;
+            top: 20px;
+        }
+
+        .word-bank-title {
+            text-align: center;
+            color: #f39c12;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            font-weight: bold;
+        }
+
+        .tabs {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 5px;
+            margin-bottom: 15px;
+        }
+
+        .tab {
+            flex: 1;
+            min-width: 100px;
+            padding: 8px 10px;
+            background: rgba(26, 26, 46, 0.6);
+            border: 2px solid #555;
+            border-radius: 8px;
+            cursor: pointer;
+            text-align: center;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .tab:hover {
+            border-color: #f39c12;
+        }
+
+        .tab.active {
+            background: linear-gradient(135deg, #f39c12 0%, #e67e22 100%);
+            border-color: #f39c12;
+            color: #1a1a2e;
+            font-weight: bold;
+        }
+
+        .word-bank {
+            min-height: 400px;
+            max-height: 600px;
+            overflow-y: auto;
+            padding: 10px;
+            background: rgba(26, 26, 46, 0.5);
+            border-radius: 10px;
+        }
+
+        .word-bank::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .word-bank::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+        }
+
+        .word-bank::-webkit-scrollbar-thumb {
+            background: #f39c12;
+            border-radius: 10px;
+        }
+
+        .draggable {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 10px 12px;
+            margin: 6px 0;
+            border-radius: 8px;
+            cursor: move;
+            border: 2px solid #7f8c8d;
+            transition: all 0.3s;
+            font-size: 0.95em;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.3);
+        }
+
+        .draggable:hover {
+            transform: scale(1.02);
+            border-color: #f39c12;
+            box-shadow: 0 4px 12px rgba(243, 156, 18, 0.4);
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+            cursor: grabbing;
+        }
+
+        /* Disease Cards */
+        .cards-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+        }
+
+        .disease-card {
+            background: rgba(26, 26, 46, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            border: 2px solid #e67e22;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.4);
+        }
+
+        .disease-title {
+            text-align: center;
+            color: #f39c12;
+            font-size: 1.4em;
+            margin-bottom: 15px;
+            font-weight: bold;
+            text-shadow: 1px 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .drop-zone-container {
+            display: grid;
+            gap: 10px;
+        }
+
+        .drop-zone-label {
+            color: #e67e22;
+            font-weight: bold;
+            font-size: 0.95em;
+            margin-bottom: 5px;
+        }
+
+        .drop-zone {
+            min-height: 45px;
+            background: rgba(15, 52, 96, 0.4);
+            border: 2px dashed #555;
+            border-radius: 8px;
+            padding: 8px;
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 5px;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(243, 156, 18, 0.2);
+            border-color: #f39c12;
+            border-style: solid;
+        }
+
+        .drop-zone.correct {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: #2ecc71;
+            border-style: solid;
+        }
+
+        .drop-zone.incorrect {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+            border-style: solid;
+        }
+
+        .dropped-item {
+            background: linear-gradient(135deg, #2c3e50 0%, #34495e 100%);
+            padding: 8px 10px;
+            border-radius: 6px;
+            cursor: move;
+            border: 2px solid #7f8c8d;
+            font-size: 0.9em;
+            transition: all 0.3s;
+        }
+
+        .dropped-item.correct {
+            background: linear-gradient(135deg, #27ae60 0%, #2ecc71 100%);
+            border-color: #2ecc71;
+        }
+
+        .dropped-item.incorrect {
+            background: linear-gradient(135deg, #c0392b 0%, #e74c3c 100%);
+            border-color: #e74c3c;
+        }
+
+        /* Summary Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            overflow-y: auto;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            margin: 50px auto;
+            padding: 30px;
+            border: 3px solid #f39c12;
+            border-radius: 15px;
+            width: 90%;
+            max-width: 900px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+        }
+
+        .close {
+            color: #f39c12;
+            float: right;
+            font-size: 35px;
+            font-weight: bold;
+            cursor: pointer;
+            line-height: 1;
+        }
+
+        .close:hover {
+            color: #e67e22;
+        }
+
+        .summary-section {
+            margin: 20px 0;
+        }
+
+        .summary-section h3 {
+            color: #f39c12;
+            margin-bottom: 10px;
+            border-bottom: 2px solid #e67e22;
+            padding-bottom: 5px;
+        }
+
+        .summary-section ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .summary-section li {
+            padding: 8px;
+            margin: 5px 0;
+            background: rgba(26, 26, 46, 0.6);
+            border-radius: 5px;
+            border-left: 4px solid #e67e22;
+        }
+
+        @media (max-width: 1200px) {
+            .main-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .word-bank-container {
+                position: relative;
+                top: 0;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 1.6em;
+            }
+
+            .top-controls {
+                flex-direction: column;
+            }
+
+            .button-group {
+                width: 100%;
+                justify-content: center;
+            }
+
+            button {
+                flex: 1;
+                min-width: 120px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🦟 Tropical & Hemorrhagic Diseases Study Game 🦠</h1>
+        <p class="subtitle">Match each disease with its correct characteristics</p>
+
+        <div class="top-controls">
+            <div class="score-container">
+                <div class="score">Score: <span id="score">0</span>/<span id="total">0</span></div>
+                <div class="item-counter">Items remaining: <span id="item-count">0</span></div>
+            </div>
+            <div class="button-group">
+                <button onclick="showSummary()">📋 Show Summary</button>
+                <button onclick="showHint()">💡 Hint</button>
+                <button onclick="showAllAnswers()">🔍 Show All Answers</button>
+                <button onclick="resetGame()">🔄 Reset</button>
+            </div>
+        </div>
+
+        <div class="main-layout">
+            <!-- Word Bank -->
+            <div class="word-bank-container">
+                <div class="word-bank-title">📚 Word Bank</div>
+                <div class="tabs">
+                    <div class="tab active" data-category="vector">Vector</div>
+                    <div class="tab" data-category="geography">Geography</div>
+                    <div class="tab" data-category="clinical">Clinical</div>
+                    <div class="tab" data-category="labs">Labs</div>
+                    <div class="tab" data-category="treatment">Treatment</div>
+                    <div class="tab" data-category="prevention">Prevention</div>
+                </div>
+                <div class="word-bank" id="wordBank"></div>
+            </div>
+
+            <!-- Disease Cards -->
+            <div class="cards-container" id="cardsContainer"></div>
+        </div>
+    </div>
+
+    <!-- Summary Modal -->
+    <div id="summaryModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeSummary()">&times;</span>
+            <h2 style="color: #f39c12; text-align: center; margin-bottom: 25px;">📖 Disease Summary</h2>
+            <div id="summaryContent"></div>
+        </div>
+    </div>
+
+    <script>
+        const diseases = [
+            {
+                name: "Plasmodium spp.",
+                answers: {
+                    vector: "Anopheles mosquito",
+                    geography: "Sub-Saharan Africa, SE Asia",
+                    clinical: "Recurrent fever (24-72h cycles), hemolytic anemia, splenomegaly",
+                    labs: "Ring forms, banana gametocytes (P. falciparum)",
+                    treatment: "ACT (artemisinin combo), chloroquine (non-resistant)",
+                    prevention: "Atovaquone-proguanil prophylaxis, RTS,S vaccine, mosquito nets"
+                }
+            },
+            {
+                name: "Babesia spp.",
+                answers: {
+                    vector: "Ixodes scapularis (deer tick)",
+                    geography: "Northeastern US",
+                    clinical: "Flu-like symptoms, hemolytic anemia",
+                    labs: "Maltese cross tetrads",
+                    treatment: "Azithromycin + Atovaquone",
+                    prevention: "Tick avoidance, prompt removal (36-72h)"
+                }
+            },
+            {
+                name: "Brucella spp.",
+                answers: {
+                    vector: "Livestock contact, unpasteurized dairy",
+                    geography: "Worldwide (unvaccinated livestock areas)",
+                    clinical: "Undulating fever, night sweats, hepatosplenomegaly",
+                    labs: "Gram-negative coccobacilli on culture",
+                    treatment: "Doxycycline + Gentamicin",
+                    prevention: "PPE with livestock, avoid unpasteurized products"
+                }
+            },
+            {
+                name: "Ebola virus",
+                answers: {
+                    vector: "Bodily fluids, bat reservoir",
+                    geography: "Central & West Africa",
+                    clinical: "Hemorrhagic fever, DIC, multiorgan failure (50-60% fatal)",
+                    labs: "RT-PCR for viral RNA",
+                    treatment: "Monoclonal antibodies, aggressive supportive care",
+                    prevention: "Viral vector vaccine, strict PPE"
+                }
+            },
+            {
+                name: "Marburg virus",
+                answers: {
+                    vector: "Bodily fluids, bat reservoir",
+                    geography: "Central & West Africa",
+                    clinical: "Hemorrhagic fever, DIC, multiorgan failure (50-60% fatal)",
+                    labs: "RT-PCR for viral RNA",
+                    treatment: "Aggressive supportive care only",
+                    prevention: "Strict PPE, avoid caves with bats"
+                }
+            },
+            {
+                name: "Hantavirus",
+                answers: {
+                    vector: "Rodent contact/inhalation",
+                    geography: "Worldwide (HFRS: Asia/Europe, HCPS: Americas)",
+                    clinical: "HFRS (renal syndrome) or HCPS (pulmonary edema, 25-50% fatal)",
+                    labs: "Serology (IgM/IgG)",
+                    treatment: "Supportive care, dialysis/ventilation",
+                    prevention: "Rodent control, avoid droppings"
+                }
+            },
+            {
+                name: "Yellow Fever",
+                answers: {
+                    vector: "Aedes aegypti mosquito",
+                    geography: "Africa, South America",
+                    clinical: "Jaundice, black vomit, severe hepatitis (20-30% fatal)",
+                    labs: "RT-PCR, Councilman bodies (liver)",
+                    treatment: "Supportive care only",
+                    prevention: "Live attenuated vaccine"
+                }
+            },
+            {
+                name: "Dengue virus",
+                answers: {
+                    vector: "Aedes mosquito",
+                    geography: "Central/South America, SE Asia",
+                    clinical: "Breakbone fever, retro-orbital pain, thrombocytopenia, shock",
+                    labs: "Neutropenia, thrombocytopenia",
+                    treatment: "IV fluids, maintain intravascular volume",
+                    prevention: "Recombinant vaccine (endemic areas only)"
+                }
+            },
+            {
+                name: "Chikungunya",
+                answers: {
+                    vector: "Aedes mosquito",
+                    geography: "Overlaps dengue distribution",
+                    clinical: "Debilitating polyarthritis (can last years), joint swelling",
+                    labs: "RT-PCR, serology",
+                    treatment: "NSAIDs, glucocorticoids, DMARDs for chronic pain",
+                    prevention: "Viral-like particle vaccine (FDA 2025)"
+                }
+            },
+            {
+                name: "Zika virus",
+                answers: {
+                    vector: "Aedes mosquito, sexual transmission",
+                    geography: "Overlaps dengue distribution",
+                    clinical: "Conjunctivitis, rash, congenital Zika (microcephaly)",
+                    labs: "RT-PCR, serology",
+                    treatment: "Supportive care only",
+                    prevention: "Condoms (2-3 months post-travel), mosquito avoidance"
+                }
+            }
+        ];
+
+        const categories = ['vector', 'geography', 'clinical', 'labs', 'treatment', 'prevention'];
+        let currentCategory = 'vector';
+        let score = 0;
+        let totalPossible = 0;
+        let draggedElement = null;
+
+        function initGame() {
+            totalPossible = diseases.length * categories.length;
+            document.getElementById('total').textContent = totalPossible;
+            
+            // Create all items for word bank
+            const allItems = [];
+            diseases.forEach((disease, diseaseIndex) => {
+                categories.forEach(category => {
+                    allItems.push({
+                        text: disease.answers[category],
+                        category: category,
+                        diseaseIndex: diseaseIndex
+                    });
+                });
+            });
+
+            // Shuffle items
+            const shuffledItems = allItems.sort(() => Math.random() - 0.5);
+            
+            // Store items by category
+            window.wordBankItems = {};
+            categories.forEach(cat => {
+                window.wordBankItems[cat] = shuffledItems.filter(item => item.category === cat);
+            });
+
+            renderCards();
+            renderWordBank();
+            updateItemCount();
+            setupTabs();
+        }
+
+        function setupTabs() {
+            document.querySelectorAll('.tab').forEach(tab => {
+                tab.addEventListener('click', () => {
+                    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+                    tab.classList.add('active');
+                    currentCategory = tab.dataset.category;
+                    renderWordBank();
+                });
+            });
+        }
+
+        function renderWordBank() {
+            const wordBank = document.getElementById('wordBank');
+            wordBank.innerHTML = '';
+
+            const items = window.wordBankItems[currentCategory] || [];
+            items.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'draggable';
+                div.draggable = true;
+                div.textContent = item.text;
+                div.dataset.category = item.category;
+                div.dataset.diseaseIndex = item.diseaseIndex;
+                div.dataset.itemIndex = index;
+
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragend', handleDragEnd);
+
+                wordBank.appendChild(div);
+            });
+        }
+
+        function renderCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+
+            diseases.forEach((disease, index) => {
+                const card = document.createElement('div');
+                card.className = 'disease-card';
+
+                let dropZonesHTML = '';
+                categories.forEach(category => {
+                    dropZonesHTML += `
+                        <div>
+                            <div class="drop-zone-label">${category.charAt(0).toUpperCase() + category.slice(1)}:</div>
+                            <div class="drop-zone" 
+                                 data-disease-index="${index}" 
+                                 data-category="${category}">
+                            </div>
+                        </div>
+                    `;
+                });
+
+                card.innerHTML = `
+                    <div class="disease-title">${disease.name}</div>
+                    <div class="drop-zone-container">
+                        ${dropZonesHTML}
+                    </div>
+                `;
+
+                container.appendChild(card);
+            });
+
+            setupDropZones();
+        }
+
+        function setupDropZones() {
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('drop', handleDrop);
+                zone.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            if (!draggedElement) return;
+
+            const dropZone = e.currentTarget;
+            const diseaseIndex = parseInt(dropZone.dataset.diseaseIndex);
+            const category = dropZone.dataset.category;
+
+            // Check if coming from word bank or another drop zone
+            const fromWordBank = draggedElement.classList.contains('draggable');
+            const fromDropZone = draggedElement.classList.contains('dropped-item');
+
+            if (fromDropZone) {
+                // Return to word bank
+                const oldCategory = draggedElement.dataset.category;
+                const itemText = draggedElement.textContent;
+                const itemDiseaseIndex = parseInt(draggedElement.dataset.diseaseIndex);
+
+                // Remove from current location
+                draggedElement.remove();
+
+                // Add back to word bank at the top
+                window.wordBankItems[oldCategory].unshift({
+                    text: itemText,
+                    category: oldCategory,
+                    diseaseIndex: itemDiseaseIndex
+                });
+
+                // Update score if it was correct
+                if (draggedElement.classList.contains('correct')) {
+                    score--;
+                    updateScore();
+                }
+
+                renderWordBank();
+                updateItemCount();
+                return;
+            }
+
+            // Clear existing item in drop zone
+            if (dropZone.children.length > 0) {
+                const existingItem = dropZone.children[0];
+                const existingCategory = existingItem.dataset.category;
+                const existingText = existingItem.textContent;
+                const existingDiseaseIndex = parseInt(existingItem.dataset.diseaseIndex);
+
+                // Return to word bank
+                window.wordBankItems[existingCategory].push({
+                    text: existingText,
+                    category: existingCategory,
+                    diseaseIndex: existingDiseaseIndex
+                });
+
+                // Update score if it was correct
+                if (existingItem.classList.contains('correct')) {
+                    score--;
+                }
+
+                dropZone.innerHTML = '';
+            }
+
+            // Add new item
+            const itemText = draggedElement.textContent;
+            const itemCategory = draggedElement.dataset.category;
+            const itemDiseaseIndex = parseInt(draggedElement.dataset.diseaseIndex);
+
+            const droppedItem = document.createElement('div');
+            droppedItem.className = 'dropped-item';
+            droppedItem.draggable = true;
+            droppedItem.textContent = itemText;
+            droppedItem.dataset.category = itemCategory;
+            droppedItem.dataset.diseaseIndex = itemDiseaseIndex;
+
+            droppedItem.addEventListener('dragstart', handleDragStart);
+            droppedItem.addEventListener('dragend', handleDragEnd);
+
+            // Check if correct
+            const correctAnswer = diseases[diseaseIndex].answers[category];
+            const isCorrect = itemText === correctAnswer;
+
+            if (isCorrect) {
+                droppedItem.classList.add('correct');
+                dropZone.classList.add('correct');
+                dropZone.classList.remove('incorrect');
+                score++;
+            } else {
+                droppedItem.classList.add('incorrect');
+                dropZone.classList.add('incorrect');
+                dropZone.classList.remove('correct');
+            }
+
+            dropZone.appendChild(droppedItem);
+
+            // Remove from word bank
+            const itemIndex = parseInt(draggedElement.dataset.itemIndex);
+            window.wordBankItems[itemCategory].splice(itemIndex, 1);
+
+            draggedElement = null;
+            renderWordBank();
+            updateScore();
+            updateItemCount();
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            
+            if (score === totalPossible) {
+                setTimeout(() => {
+                    alert('🎉 Congratulations! You got them all correct! 🎉');
+                }, 300);
+            }
+        }
+
+        function updateItemCount() {
+            const totalItems = Object.values(window.wordBankItems).reduce((sum, items) => sum + items.length, 0);
+            document.getElementById('item-count').textContent = totalItems;
+        }
+
+        function showHint() {
+            // Find first incorrect or empty drop zone
+            const dropZones = document.querySelectorAll('.drop-zone');
+            for (let zone of dropZones) {
+                if (zone.children.length === 0 || zone.classList.contains('incorrect')) {
+                    const diseaseIndex = parseInt(zone.dataset.diseaseIndex);
+                    const category = zone.dataset.category;
+                    const correctAnswer = diseases[diseaseIndex].answers[category];
+                    
+                    alert(`Hint for ${diseases[diseaseIndex].name} - ${category}:\n\n"${correctAnswer}"`);
+                    return;
+                }
+            }
+            alert('Everything is correct! Great job! 🎉');
+        }
+
+        function showAllAnswers() {
+            if (!confirm('This will show all correct answers. Are you sure?')) return;
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                const diseaseIndex = parseInt(zone.dataset.diseaseIndex);
+                const category = zone.dataset.category;
+                const correctAnswer = diseases[diseaseIndex].answers[category];
+
+                // Clear existing
+                const existingItem = zone.children[0];
+                if (existingItem) {
+                    const existingCategory = existingItem.dataset.category;
+                    const existingText = existingItem.textContent;
+                    const existingDiseaseIndex = parseInt(existingItem.dataset.diseaseIndex);
+
+                    window.wordBankItems[existingCategory].push({
+                        text: existingText,
+                        category: existingCategory,
+                        diseaseIndex: existingDiseaseIndex
+                    });
+
+                    if (existingItem.classList.contains('correct')) {
+                        score--;
+                    }
+                }
+
+                zone.innerHTML = '';
+
+                // Add correct answer
+                const droppedItem = document.createElement('div');
+                droppedItem.className = 'dropped-item correct';
+                droppedItem.draggable = true;
+                droppedItem.textContent = correctAnswer;
+                droppedItem.dataset.category = category;
+                droppedItem.dataset.diseaseIndex = diseaseIndex;
+
+                droppedItem.addEventListener('dragstart', handleDragStart);
+                droppedItem.addEventListener('dragend', handleDragEnd);
+
+                zone.appendChild(droppedItem);
+                zone.classList.add('correct');
+                zone.classList.remove('incorrect');
+
+                // Remove from word bank
+                const itemIndex = window.wordBankItems[category].findIndex(
+                    item => item.text === correctAnswer && item.diseaseIndex === diseaseIndex
+                );
+                if (itemIndex !== -1) {
+                    window.wordBankItems[category].splice(itemIndex, 1);
+                }
+            });
+
+            score = totalPossible;
+            renderWordBank();
+            updateScore();
+            updateItemCount();
+        }
+
+        function resetGame() {
+            if (!confirm('This will reset the game. Are you sure?')) return;
+            
+            score = 0;
+            currentCategory = 'vector';
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelector('.tab[data-category="vector"]').classList.add('active');
+            
+            initGame();
+            updateScore();
+        }
+
+        function showSummary() {
+            const modal = document.getElementById('summaryModal');
+            const content = document.getElementById('summaryContent');
+            
+            let html = '';
+            diseases.forEach(disease => {
+                html += `<div class="summary-section">
+                    <h3>${disease.name}</h3>
+                    <ul>`;
+                
+                categories.forEach(category => {
+                    html += `<li><strong>${category.charAt(0).toUpperCase() + category.slice(1)}:</strong> ${disease.answers[category]}</li>`;
+                });
+                
+                html += `</ul></div>`;
+            });
+            
+            content.innerHTML = html;
+            modal.style.display = 'block';
+        }
+
+        function closeSummary() {
+            document.getElementById('summaryModal').style.display = 'none';
+        }
+
+        window.onclick = function(event) {
+            const modal = document.getElementById('summaryModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        }
+
+        // Initialize game on load
+        initGame();
+    </script>
+</body>
+</html>

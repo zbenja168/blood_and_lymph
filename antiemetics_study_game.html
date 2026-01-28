@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Antiemetics Study Game - Drag & Drop</title>
+    <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&family=Shadows+Into+Light&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Shadows Into Light', cursive;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e4e4e4;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        h1 {
+            font-family: 'Dancing Script', cursive;
+            text-align: center;
+            font-size: 3em;
+            margin-bottom: 20px;
+            color: #f39c12;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            flex-wrap: wrap;
+            margin-bottom: 20px;
+        }
+
+        .control-btn {
+            font-family: 'Shadows Into Light', cursive;
+            padding: 12px 24px;
+            font-size: 1.1em;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+        }
+
+        .control-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+
+        .summary-btn {
+            background: linear-gradient(135deg, #3498db, #2980b9);
+            color: white;
+        }
+
+        .hint-btn {
+            background: linear-gradient(135deg, #9b59b6, #8e44ad);
+            color: white;
+        }
+
+        .show-btn {
+            background: linear-gradient(135deg, #e74c3c, #c0392b);
+            color: white;
+        }
+
+        .reset-btn {
+            background: linear-gradient(135deg, #95a5a6, #7f8c8d);
+            color: white;
+        }
+
+        .score-board {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            margin-bottom: 20px;
+            font-size: 1.3em;
+        }
+
+        .score-item {
+            background: rgba(255,255,255,0.1);
+            padding: 10px 20px;
+            border-radius: 15px;
+            border: 2px solid #f39c12;
+        }
+
+        .score-value {
+            color: #f39c12;
+            font-weight: bold;
+            font-size: 1.2em;
+        }
+
+        .container {
+            display: flex;
+            gap: 20px;
+            max-width: 1600px;
+            margin: 0 auto;
+        }
+
+        .cards-section {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 20px;
+        }
+
+        .drug-card {
+            background: rgba(255,255,255,0.05);
+            border: 2px solid #f39c12;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+        }
+
+        .drug-card h2 {
+            font-family: 'Dancing Script', cursive;
+            color: #f39c12;
+            font-size: 2em;
+            margin-bottom: 15px;
+            text-align: center;
+            border-bottom: 2px solid #f39c12;
+            padding-bottom: 10px;
+        }
+
+        .drop-section {
+            margin-bottom: 15px;
+        }
+
+        .drop-label {
+            font-weight: bold;
+            color: #3498db;
+            margin-bottom: 5px;
+            font-size: 1.1em;
+        }
+
+        .drop-zone {
+            min-height: 60px;
+            background: rgba(255,255,255,0.03);
+            border: 2px dashed #555;
+            border-radius: 10px;
+            padding: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            align-items: center;
+            transition: all 0.3s;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(52, 152, 219, 0.2);
+            border-color: #3498db;
+            border-style: solid;
+        }
+
+        .drop-zone.correct {
+            background: rgba(46, 204, 113, 0.2);
+            border-color: #2ecc71;
+            border-style: solid;
+        }
+
+        .drop-zone.incorrect {
+            background: rgba(231, 76, 60, 0.2);
+            border-color: #e74c3c;
+            border-style: solid;
+        }
+
+        .word-bank-container {
+            width: 350px;
+            position: sticky;
+            top: 20px;
+            height: fit-content;
+            max-height: calc(100vh - 40px);
+            display: flex;
+            flex-direction: column;
+        }
+
+        .word-bank {
+            background: rgba(255,255,255,0.08);
+            border: 3px solid #9b59b6;
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.4);
+            display: flex;
+            flex-direction: column;
+            max-height: calc(100vh - 40px);
+        }
+
+        .word-bank h3 {
+            font-family: 'Dancing Script', cursive;
+            color: #9b59b6;
+            font-size: 2em;
+            margin-bottom: 15px;
+            text-align: center;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            flex: 1;
+            padding: 8px 12px;
+            background: rgba(255,255,255,0.1);
+            border: 2px solid transparent;
+            border-radius: 10px;
+            cursor: pointer;
+            text-align: center;
+            transition: all 0.3s;
+            font-size: 0.9em;
+            min-width: 80px;
+        }
+
+        .tab:hover {
+            background: rgba(255,255,255,0.15);
+        }
+
+        .tab.active {
+            background: #9b59b6;
+            border-color: #9b59b6;
+            color: white;
+            font-weight: bold;
+        }
+
+        .word-items {
+            flex: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            padding: 10px;
+            background: rgba(0,0,0,0.2);
+            border-radius: 10px;
+            max-height: 500px;
+        }
+
+        .word-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .word-items::-webkit-scrollbar-track {
+            background: rgba(255,255,255,0.05);
+            border-radius: 10px;
+        }
+
+        .word-items::-webkit-scrollbar-thumb {
+            background: #9b59b6;
+            border-radius: 10px;
+        }
+
+        .draggable {
+            padding: 10px 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-radius: 10px;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+            font-size: 1em;
+            text-align: center;
+        }
+
+        .draggable:hover {
+            transform: scale(1.05);
+            box-shadow: 0 6px 12px rgba(0,0,0,0.4);
+        }
+
+        .draggable.dragging {
+            opacity: 0.5;
+        }
+
+        .draggable.placed {
+            cursor: grab;
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.8);
+            z-index: 1000;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            padding: 30px;
+            border-radius: 20px;
+            max-width: 800px;
+            max-height: 80vh;
+            overflow-y: auto;
+            border: 3px solid #f39c12;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .modal-content h2 {
+            font-family: 'Dancing Script', cursive;
+            color: #f39c12;
+            font-size: 2.5em;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+
+        .modal-content h3 {
+            color: #3498db;
+            font-size: 1.5em;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
+
+        .modal-content ul {
+            list-style: none;
+            padding-left: 20px;
+        }
+
+        .modal-content li {
+            margin-bottom: 8px;
+            padding-left: 20px;
+            position: relative;
+        }
+
+        .modal-content li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: #f39c12;
+        }
+
+        .close-modal {
+            float: right;
+            font-size: 2em;
+            cursor: pointer;
+            color: #e74c3c;
+            line-height: 1;
+            transition: all 0.3s;
+        }
+
+        .close-modal:hover {
+            color: #c0392b;
+            transform: scale(1.2);
+        }
+
+        @media (max-width: 1200px) {
+            .container {
+                flex-direction: column;
+            }
+
+            .word-bank-container {
+                width: 100%;
+                position: relative;
+                top: 0;
+            }
+
+            .word-bank {
+                max-height: 400px;
+            }
+        }
+
+        .hint-highlight {
+            animation: pulse 2s ease-in-out;
+            border-color: #f39c12 !important;
+            border-style: solid !important;
+            box-shadow: 0 0 20px rgba(243, 156, 18, 0.6);
+        }
+
+        @keyframes pulse {
+            0%, 100% {
+                box-shadow: 0 0 20px rgba(243, 156, 18, 0.6);
+            }
+            50% {
+                box-shadow: 0 0 30px rgba(243, 156, 18, 0.9);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>✨ Antiemetics Mastery Game ✨</h1>
+        
+        <div class="score-board">
+            <div class="score-item">
+                <span>Score: </span>
+                <span class="score-value" id="score">0</span>
+            </div>
+            <div class="score-item">
+                <span>Remaining: </span>
+                <span class="score-value" id="remaining">0</span>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="control-btn summary-btn" onclick="showSummary()">📚 Show Summary</button>
+            <button class="control-btn hint-btn" onclick="showHint()">💡 Hint</button>
+            <button class="control-btn show-btn" onclick="showAllAnswers()">👁️ Show All Answers</button>
+            <button class="control-btn reset-btn" onclick="resetGame()">🔄 Reset</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="cards-section" id="cardsSection"></div>
+
+        <div class="word-bank-container">
+            <div class="word-bank">
+                <h3>Word Bank</h3>
+                <div class="tabs" id="tabs"></div>
+                <div class="word-items" id="wordItems"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="summaryModal">
+        <div class="modal-content">
+            <span class="close-modal" onclick="closeModal()">&times;</span>
+            <h2>Antiemetics Summary</h2>
+            
+            <h3>🎯 D2 Antagonists</h3>
+            <ul>
+                <li><strong>Example:</strong> Metoclopramide</li>
+                <li><strong>Mechanism:</strong> Blocks D2 receptors in CTZ and 5-HT3 receptors</li>
+                <li><strong>Use:</strong> Breakthrough N/V, acute vomiting, diabetic gastroparesis</li>
+                <li><strong>Adverse Effects:</strong> QT prolongation, extrapyramidal symptoms, tardive dyskinesia, serotonin syndrome with SSRIs</li>
+            </ul>
+
+            <h3>🎯 5-HT3 Antagonists</h3>
+            <ul>
+                <li><strong>Examples:</strong> Ondansetron, Palonosetron, Granisetron</li>
+                <li><strong>Mechanism:</strong> Block 5-HT3 receptors in CTZ and vagus nerve</li>
+                <li><strong>Use:</strong> Prophylaxis and treatment of chemotherapy-induced N/V</li>
+                <li><strong>Adverse Effects:</strong> Headache, constipation, rare QT prolongation</li>
+            </ul>
+
+            <h3>🎯 NK1 Antagonists</h3>
+            <ul>
+                <li><strong>Example:</strong> Aprepitant</li>
+                <li><strong>Mechanism:</strong> Blocks NK1 receptors to inhibit substance P</li>
+                <li><strong>Use:</strong> Pre-treatment ~30 min before chemotherapy (not PRN)</li>
+                <li><strong>Adverse Effects:</strong> Neutropenia, fatigue (limited overall)</li>
+            </ul>
+
+            <h3>🎯 Antimuscarinics</h3>
+            <ul>
+                <li><strong>Example:</strong> Scopolamine</li>
+                <li><strong>Mechanism:</strong> Blocks M1 receptors in vestibular system</li>
+                <li><strong>Use:</strong> Motion sickness, some chemotherapy-induced N/V</li>
+                <li><strong>Adverse Effects:</strong> Anticholinergic effects - dry mouth, blurred vision, urinary retention, confusion</li>
+            </ul>
+
+            <h3>🎯 Steroids</h3>
+            <ul>
+                <li><strong>Examples:</strong> Dexamethasone, Methylprednisone, Prednisone</li>
+                <li><strong>Mechanism:</strong> Suppress inflammatory mediators (exact mechanism unknown)</li>
+                <li><strong>Use:</strong> Pre-treatment combined with other antiemetics</li>
+                <li><strong>Adverse Effects:</strong> Hyperglycemia, GI bleed risk</li>
+            </ul>
+
+            <h3>📌 Key Clinical Points</h3>
+            <ul>
+                <li>High-risk chemotherapy (cisplatin) requires ≥3 drug regimen</li>
+                <li>Multi-drug approach targets multiple receptors</li>
+                <li>Metoclopramide can cause lactation (blocks dopamine → ↑ prolactin)</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        const gameData = {
+            drugs: [
+                {
+                    name: "D2 Antagonists",
+                    dropZones: {
+                        examples: ["Metoclopramide"],
+                        mechanism: ["Blocks D2 receptors in CTZ", "Also blocks 5-HT3 receptors", "Increases gastric emptying"],
+                        adverse: ["QT prolongation & torsades", "Extrapyramidal symptoms", "Tardive dyskinesia (often irreversible)", "Serotonin syndrome with SSRIs"],
+                        use: ["Breakthrough N/V when others fail", "Acute vomiting", "Can increase lactation"]
+                    }
+                },
+                {
+                    name: "5-HT3 Antagonists",
+                    dropZones: {
+                        examples: ["Ondansetron, Palonosetron, Granisetron"],
+                        mechanism: ["Blocks 5-HT3 receptors in CTZ", "Blocks 5-HT3 on vagus nerve terminals"],
+                        adverse: ["Headache, dizziness", "Constipation", "Rare QT prolongation"],
+                        use: ["Prophylaxis for chemo-induced N/V", "Treatment of chemo-induced N/V"]
+                    }
+                },
+                {
+                    name: "NK1 Antagonists",
+                    dropZones: {
+                        examples: ["Aprepitant"],
+                        mechanism: ["Blocks NK1 receptors", "Inhibits substance P binding", "Crosses BBB"],
+                        adverse: ["Neutropenia", "Fatigue", "Few adverse effects overall"],
+                        use: ["Pre-treatment ~30 min before chemo", "NOT effective as needed/PRN", "Prevents pain, nausea, vomiting"]
+                    }
+                },
+                {
+                    name: "Antimuscarinics",
+                    dropZones: {
+                        examples: ["Scopolamine"],
+                        mechanism: ["Blocks M1 receptors", "Acts on vestibular system", "Crosses BBB"],
+                        adverse: ["Dry mouth, blurred vision", "Urinary retention", "Confusion, sedation", "Flushed skin, overheating"],
+                        use: ["Motion sickness (primary)", "Chemo-induced N/V (secondary)", "Best as transdermal patch"]
+                    }
+                },
+                {
+                    name: "Steroids",
+                    dropZones: {
+                        examples: ["Dexamethasone, Methylprednisone, Prednisone"],
+                        mechanism: ["Suppresses inflammatory mediators", "Exact mechanism unknown"],
+                        adverse: ["Hyperglycemia", "GI bleed risk"],
+                        use: ["Pre-treatment combined with other antiemetics", "Used in multi-drug regimens"]
+                    }
+                }
+            ]
+        };
+
+        let allItems = [];
+        let currentTab = 'all';
+        let score = 0;
+        let correctPlacements = new Set();
+
+        // Initialize game
+        function initGame() {
+            createCards();
+            createWordBank();
+            updateScore();
+        }
+
+        function createCards() {
+            const cardsSection = document.getElementById('cardsSection');
+            cardsSection.innerHTML = '';
+
+            gameData.drugs.forEach((drug, drugIndex) => {
+                const card = document.createElement('div');
+                card.className = 'drug-card';
+                card.innerHTML = `
+                    <h2>${drug.name}</h2>
+                    <div class="drop-section">
+                        <div class="drop-label">📌 Examples:</div>
+                        <div class="drop-zone" data-drug="${drugIndex}" data-category="examples"></div>
+                    </div>
+                    <div class="drop-section">
+                        <div class="drop-label">⚙️ Mechanism:</div>
+                        <div class="drop-zone" data-drug="${drugIndex}" data-category="mechanism"></div>
+                    </div>
+                    <div class="drop-section">
+                        <div class="drop-label">⚠️ Adverse Effects:</div>
+                        <div class="drop-zone" data-drug="${drugIndex}" data-category="adverse"></div>
+                    </div>
+                    <div class="drop-section">
+                        <div class="drop-label">💊 Clinical Use:</div>
+                        <div class="drop-zone" data-drug="${drugIndex}" data-category="use"></div>
+                    </div>
+                `;
+                cardsSection.appendChild(card);
+            });
+
+            setupDropZones();
+        }
+
+        function createWordBank() {
+            allItems = [];
+            gameData.drugs.forEach((drug, drugIndex) => {
+                Object.entries(drug.dropZones).forEach(([category, items]) => {
+                    items.forEach(item => {
+                        allItems.push({
+                            text: item,
+                            category: category,
+                            drugIndex: drugIndex,
+                            id: `item-${allItems.length}`
+                        });
+                    });
+                });
+            });
+
+            // Randomize the order
+            allItems = shuffleArray(allItems);
+
+            createTabs();
+            displayWordBank();
+        }
+
+        function shuffleArray(array) {
+            const newArray = [...array];
+            for (let i = newArray.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [newArray[i], newArray[j]] = [newArray[j], newArray[i]];
+            }
+            return newArray;
+        }
+
+        function createTabs() {
+            const tabs = document.getElementById('tabs');
+            tabs.innerHTML = '';
+
+            const categories = [
+                { id: 'all', label: 'All' },
+                { id: 'examples', label: 'Examples' },
+                { id: 'mechanism', label: 'Mechanism' },
+                { id: 'adverse', label: 'Adverse' },
+                { id: 'use', label: 'Use' }
+            ];
+
+            categories.forEach(cat => {
+                const tab = document.createElement('div');
+                tab.className = 'tab' + (cat.id === currentTab ? ' active' : '');
+                tab.textContent = cat.label;
+                tab.onclick = () => switchTab(cat.id);
+                tabs.appendChild(tab);
+            });
+        }
+
+        function switchTab(tabId) {
+            currentTab = tabId;
+            createTabs();
+            displayWordBank();
+        }
+
+        function displayWordBank() {
+            const wordItems = document.getElementById('wordItems');
+            wordItems.innerHTML = '';
+
+            const filteredItems = currentTab === 'all' 
+                ? allItems 
+                : allItems.filter(item => item.category === currentTab);
+
+            filteredItems.forEach(item => {
+                if (!document.getElementById(item.id)) {
+                    const draggable = createDraggableElement(item);
+                    wordItems.appendChild(draggable);
+                }
+            });
+
+            updateScore();
+        }
+
+        function createDraggableElement(item) {
+            const div = document.createElement('div');
+            div.className = 'draggable';
+            div.textContent = item.text;
+            div.draggable = true;
+            div.id = item.id;
+            div.dataset.category = item.category;
+            div.dataset.drugIndex = item.drugIndex;
+            div.dataset.text = item.text;
+
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+
+            return div;
+        }
+
+        function setupDropZones() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('dragleave', handleDragLeave);
+                zone.addEventListener('drop', handleDrop);
+            });
+        }
+
+        let draggedElement = null;
+
+        function handleDragStart(e) {
+            draggedElement = e.target;
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            if (!draggedElement) return;
+
+            const dropZone = e.currentTarget;
+            const drugIndex = parseInt(dropZone.dataset.drug);
+            const category = dropZone.dataset.category;
+
+            const itemDrugIndex = parseInt(draggedElement.dataset.drugIndex);
+            const itemCategory = draggedElement.dataset.category;
+
+            const isCorrect = drugIndex === itemDrugIndex && category === itemCategory;
+
+            if (isCorrect) {
+                // Remove from word bank
+                const originalElement = document.getElementById(draggedElement.id);
+                if (originalElement && originalElement.parentElement.id === 'wordItems') {
+                    originalElement.remove();
+                }
+
+                // Create new element for drop zone
+                const newElement = draggedElement.cloneNode(true);
+                newElement.classList.add('placed');
+                newElement.addEventListener('dragstart', handleDragStart);
+                newElement.addEventListener('dragend', handleDragEnd);
+                
+                dropZone.appendChild(newElement);
+                dropZone.classList.add('correct');
+                dropZone.classList.remove('incorrect');
+
+                const uniqueId = `${drugIndex}-${category}-${draggedElement.dataset.text}`;
+                if (!correctPlacements.has(uniqueId)) {
+                    correctPlacements.add(uniqueId);
+                    score++;
+                }
+
+                setTimeout(() => {
+                    dropZone.classList.remove('correct');
+                }, 1000);
+
+            } else {
+                // Incorrect placement
+                const originalElement = document.getElementById(draggedElement.id);
+                if (originalElement && originalElement.parentElement.id === 'wordItems') {
+                    originalElement.remove();
+                }
+
+                // Create element in drop zone
+                const newElement = draggedElement.cloneNode(true);
+                newElement.classList.add('placed');
+                newElement.addEventListener('dragstart', handleDragStart);
+                newElement.addEventListener('dragend', handleDragEnd);
+                
+                dropZone.appendChild(newElement);
+                dropZone.classList.add('incorrect');
+
+                setTimeout(() => {
+                    // Return to word bank at TOP
+                    dropZone.classList.remove('incorrect');
+                    newElement.remove();
+                    returnToWordBank(draggedElement, true); // true = add to top
+                }, 1500);
+            }
+
+            updateScore();
+        }
+
+        function returnToWordBank(element, addToTop = false) {
+            const wordItems = document.getElementById('wordItems');
+            const existingElement = document.getElementById(element.id);
+            
+            if (!existingElement) {
+                const newElement = createDraggableElement({
+                    text: element.dataset.text,
+                    category: element.dataset.category,
+                    drugIndex: parseInt(element.dataset.drugIndex),
+                    id: element.id
+                });
+
+                if (addToTop) {
+                    wordItems.insertBefore(newElement, wordItems.firstChild);
+                } else {
+                    wordItems.appendChild(newElement);
+                }
+            }
+        }
+
+        function updateScore() {
+            document.getElementById('score').textContent = score;
+            const totalItems = allItems.length;
+            const remaining = totalItems - correctPlacements.size;
+            document.getElementById('remaining').textContent = remaining;
+        }
+
+        function showSummary() {
+            document.getElementById('summaryModal').style.display = 'flex';
+        }
+
+        function closeModal() {
+            document.getElementById('summaryModal').style.display = 'none';
+        }
+
+        function showHint() {
+            // Find first empty drop zone
+            const dropZones = document.querySelectorAll('.drop-zone');
+            for (let zone of dropZones) {
+                if (zone.children.length === 0 || 
+                    zone.children.length < gameData.drugs[zone.dataset.drug].dropZones[zone.dataset.category].length) {
+                    zone.classList.add('hint-highlight');
+                    zone.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    
+                    setTimeout(() => {
+                        zone.classList.remove('hint-highlight');
+                    }, 2000);
+                    break;
+                }
+            }
+        }
+
+        function showAllAnswers() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+            dropZones.forEach(zone => {
+                const drugIndex = parseInt(zone.dataset.drug);
+                const category = zone.dataset.category;
+                const correctItems = gameData.drugs[drugIndex].dropZones[category];
+
+                // Clear zone
+                zone.innerHTML = '';
+
+                // Add all correct items
+                correctItems.forEach(itemText => {
+                    const item = allItems.find(i => 
+                        i.text === itemText && 
+                        i.drugIndex === drugIndex && 
+                        i.category === category
+                    );
+
+                    if (item) {
+                        const element = createDraggableElement(item);
+                        element.classList.add('placed');
+                        zone.appendChild(element);
+
+                        const uniqueId = `${drugIndex}-${category}-${itemText}`;
+                        correctPlacements.add(uniqueId);
+
+                        // Remove from word bank
+                        const wordBankElement = document.getElementById(item.id);
+                        if (wordBankElement && wordBankElement.parentElement.id === 'wordItems') {
+                            wordBankElement.remove();
+                        }
+                    }
+                });
+
+                zone.classList.add('correct');
+            });
+
+            score = correctPlacements.size;
+            updateScore();
+
+            setTimeout(() => {
+                dropZones.forEach(zone => zone.classList.remove('correct'));
+            }, 2000);
+        }
+
+        function resetGame() {
+            if (confirm('Are you sure you want to reset the game?')) {
+                score = 0;
+                correctPlacements.clear();
+                currentTab = 'all';
+                
+                // Clear all drop zones
+                document.querySelectorAll('.drop-zone').forEach(zone => {
+                    zone.innerHTML = '';
+                    zone.className = 'drop-zone';
+                });
+
+                // Recreate word bank
+                createWordBank();
+                updateScore();
+            }
+        }
+
+        // Close modal when clicking outside
+        window.onclick = function(event) {
+            const modal = document.getElementById('summaryModal');
+            if (event.target === modal) {
+                closeModal();
+            }
+        }
+
+        // Initialize game on load
+        initGame();
+    </script>
+</body>
+</html>

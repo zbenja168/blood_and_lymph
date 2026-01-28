@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemotherapy Agents Classification</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #d946ef;
+            --secondary: #c026d3;
+            --accent: #a21caf;
+            --bg-main: #1a0a1f;
+            --bg-secondary: #2a1435;
+            --bg-card: #3d1f4d;
+            --text-primary: #fdf4ff;
+            --text-secondary: #f5d0fe;
+            --border: #7e22ce;
+            --success: #22c55e;
+            --error: #ef4444;
+            --topo1: #ec4899;
+            --topo2: #f97316;
+            --vinca: #eab308;
+            --taxanes: #84cc16;
+            --anthracyclines: #06b6d4;
+            --bleomycin: #3b82f6;
+            --antifolates: #8b5cf6;
+            --pyrimidine: #a855f7;
+            --purine: #c084fc;
+            --alkylating: #e879f9;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 2400px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out 0.2s backwards;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            border: 1px solid rgba(217, 70, 239, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-weight: 800;
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .game-board {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 1px solid rgba(217, 70, 239, 0.15);
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+        }
+
+        .grid-container {
+            flex: 1;
+            min-width: 0;
+            overflow-x: auto;
+        }
+
+        .word-bank-container {
+            width: 450px;
+            flex-shrink: 0;
+        }
+
+        .drug-class-header-row {
+            display: grid;
+            grid-template-columns: 220px repeat(10, minmax(160px, 1fr));
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .drug-class-header-spacer {
+            background: transparent;
+        }
+
+        .drug-class-header {
+            font-weight: 800;
+            font-size: 0.8rem;
+            padding: 1rem 0.6rem;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            letter-spacing: 0.02em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            line-height: 1.3;
+        }
+
+        .drug-class-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+        }
+
+        .topo1-header { background: linear-gradient(135deg, var(--topo1), #db2777); }
+        .topo2-header { background: linear-gradient(135deg, var(--topo2), #ea580c); }
+        .vinca-header { background: linear-gradient(135deg, var(--vinca), #ca8a04); }
+        .taxanes-header { background: linear-gradient(135deg, var(--taxanes), #65a30d); }
+        .anthracyclines-header { background: linear-gradient(135deg, var(--anthracyclines), #0284c7); }
+        .bleomycin-header { background: linear-gradient(135deg, var(--bleomycin), #2563eb); }
+        .antifolates-header { background: linear-gradient(135deg, var(--antifolates), #7c3aed); }
+        .pyrimidine-header { background: linear-gradient(135deg, var(--pyrimidine), #9333ea); }
+        .purine-header { background: linear-gradient(135deg, var(--purine), #a855f7); }
+        .alkylating-header { background: linear-gradient(135deg, var(--alkylating), #d946ef); }
+
+        .row-label {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            padding: 0.8rem;
+            border-radius: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 1px solid rgba(217, 70, 239, 0.2);
+            font-size: 0.8rem;
+            color: var(--text-primary);
+            min-height: 110px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: 220px repeat(10, minmax(160px, 1fr));
+            gap: 0.5rem;
+        }
+
+        .drop-zone {
+            background: rgba(0,0,0,0.3);
+            border: 2px dashed rgba(217, 70, 239, 0.3);
+            border-radius: 10px;
+            min-height: 110px;
+            min-width: 160px;
+            padding: 0.65rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.45rem;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(217, 70, 239, 0.1);
+            border-color: var(--primary);
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(217, 70, 239, 0.3);
+        }
+
+        .drop-zone.correct {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: var(--success);
+            border-style: solid;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+        }
+
+        .drop-zone.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--error);
+            border-style: solid;
+            animation: shake 0.4s ease;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .draggable-items {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            border-radius: 15px;
+            border: 1px solid rgba(217, 70, 239, 0.2);
+            padding: 1.25rem;
+            min-height: 500px;
+            max-height: 700px;
+            overflow-y: auto;
+            position: sticky;
+            top: 2rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .word-bank-title {
+            font-weight: 800;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .instant-feedback-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(217, 70, 239, 0.2);
+        }
+
+        .instant-feedback-toggle label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            user-select: none;
+            letter-spacing: 0.05em;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            border-radius: 26px;
+            transition: 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .word-bank-tabs {
+            display: flex;
+            gap: 0.35rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 50px;
+            padding: 0.6rem 0.3rem;
+            border: 1px solid rgba(217, 70, 239, 0.3);
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-size: 0.62rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--primary);
+            background: rgba(217, 70, 239, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 8px rgba(217, 70, 239, 0.3);
+        }
+
+        .items-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .draggable-item {
+            background: rgba(0,0,0,0.4);
+            padding: 0.8rem;
+            border-radius: 8px;
+            border: 1px solid rgba(217, 70, 239, 0.25);
+            cursor: move;
+            user-select: none;
+            font-size: 0.78rem;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .draggable-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 6px 12px rgba(217, 70, 239, 0.3);
+            transform: translateY(-3px);
+            background: rgba(217, 70, 239, 0.1);
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+        }
+
+        .draggable-item.hidden {
+            display: none;
+        }
+
+        .item-in-zone {
+            background: rgba(0,0,0,0.5);
+            padding: 0.55rem;
+            border-radius: 6px;
+            font-size: 0.7rem;
+            line-height: 1.4;
+            border: 1px solid rgba(217, 70, 239, 0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            color: var(--text-primary);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            animation: fadeIn 0.8s ease-out 0.6s backwards;
+        }
+
+        .btn {
+            padding: 0.875rem 2.5rem;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(217, 70, 239, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(217, 70, 239, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(217, 70, 239, 0.2);
+        }
+
+        .feedback-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .feedback-modal.show {
+            display: flex;
+        }
+
+        .feedback-content {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 2px solid rgba(217, 70, 239, 0.3);
+            animation: scaleIn 0.3s ease;
+        }
+
+        .feedback-content h2 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-score {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.875rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            box-shadow: 0 4px 12px rgba(217, 70, 239, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(217, 70, 239, 0.5);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .draggable-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .draggable-items::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+
+        .draggable-items::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+
+        @media (max-width: 2000px) {
+            .drug-class-header-row, .game-grid {
+                grid-template-columns: 200px repeat(10, minmax(150px, 1fr));
+                gap: 0.45rem;
+            }
+            .word-bank-container {
+                width: 420px;
+            }
+            .drug-class-header {
+                font-size: 0.75rem;
+                padding: 0.9rem 0.5rem;
+                min-width: 150px;
+            }
+            .drop-zone {
+                min-width: 150px;
+                min-height: 105px;
+            }
+        }
+
+        @media (max-width: 1600px) {
+            .drug-class-header-row, .game-grid {
+                grid-template-columns: 180px repeat(10, minmax(140px, 1fr));
+                gap: 0.4rem;
+            }
+            .word-bank-container {
+                width: 400px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .game-board {
+                flex-direction: column;
+            }
+            .word-bank-container {
+                width: 100%;
+            }
+            .draggable-items {
+                min-height: auto;
+                max-height: 400px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .drug-class-header-row, .game-grid {
+                grid-template-columns: 1fr;
+            }
+            .drug-class-header-spacer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>💊 Chemotherapy Agents</h1>
+            <p class="subtitle">Comprehensive oncology pharmacology classification</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="correct-count">0</div>
+                <div class="stat-label">Correct</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-count">0</div>
+                <div class="stat-label">Total Placed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="accuracy">0%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <div class="grid-container">
+                <div class="drug-class-header-row">
+                    <div class="drug-class-header-spacer"></div>
+                    <div class="drug-class-header topo1-header">Topoisomerase I Inhibitors</div>
+                    <div class="drug-class-header topo2-header">Topoisomerase II Inhibitors</div>
+                    <div class="drug-class-header vinca-header">Vinca Alkaloids</div>
+                    <div class="drug-class-header taxanes-header">Taxanes</div>
+                    <div class="drug-class-header anthracyclines-header">Anthracyclines</div>
+                    <div class="drug-class-header bleomycin-header">Bleomycin & Mitomycin</div>
+                    <div class="drug-class-header antifolates-header">Antifolates</div>
+                    <div class="drug-class-header pyrimidine-header">Pyrimidine Analogs</div>
+                    <div class="drug-class-header purine-header">Purine Analogs</div>
+                    <div class="drug-class-header alkylating-header">Alkylating Agents</div>
+                </div>
+
+                <div id="game-grid" class="game-grid">
+                    <!-- Grid will be dynamically generated -->
+                </div>
+            </div>
+
+            <div class="word-bank-container">
+                <div class="draggable-items">
+                    <div class="word-bank-title">Word Bank</div>
+                    
+                    <div class="instant-feedback-toggle">
+                        <label for="instant-feedback">Instant Feedback</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="instant-feedback" checked onchange="toggleInstantFeedback()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="word-bank-tabs">
+                        <button class="tab-btn active" onclick="filterItems('all')">All</button>
+                        <button class="tab-btn" onclick="filterItems('Mechanism')">MOA</button>
+                        <button class="tab-btn" onclick="filterItems('Cell Cycle')">Cycle</button>
+                        <button class="tab-btn" onclick="filterItems('Key Drugs')">Drugs</button>
+                        <button class="tab-btn" onclick="filterItems('Major Toxicities')">Toxicity</button>
+                        <button class="tab-btn" onclick="filterItems('Unique Features')">Features</button>
+                        <button class="tab-btn" onclick="filterItems('Clinical Notes')">Notes</button>
+                    </div>
+                    <div id="items-grid" class="items-grid">
+                        <!-- Draggable items will be dynamically generated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="checkAnswers()">Check Answers</button>
+            <button class="btn btn-secondary" onclick="resetGame()">Reset Game</button>
+        </div>
+    </div>
+
+    <div id="feedback" class="feedback-modal">
+        <div class="feedback-content">
+            <h2>Results</h2>
+            <div id="feedback-score" class="feedback-score"></div>
+            <button class="close-btn" onclick="closeFeedback()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const categories = ['Mechanism', 'Cell Cycle', 'Key Drugs', 'Major Toxicities', 'Unique Features', 'Clinical Notes'];
+        const drugClasses = [
+            'Topoisomerase I Inhibitors',
+            'Topoisomerase II Inhibitors',
+            'Vinca Alkaloids',
+            'Taxanes',
+            'Anthracyclines',
+            'Bleomycin & Mitomycin',
+            'Antifolates',
+            'Pyrimidine Analogs',
+            'Purine Analogs',
+            'Alkylating Agents'
+        ];
+
+        const correctAnswers = {
+            'Mechanism': {
+                'Topoisomerase I Inhibitors': 'Bind topoisomerase I; prevent DNA religation → single-strand breaks → irreversible double-strand breaks at replication fork',
+                'Topoisomerase II Inhibitors': 'Bind topoisomerase II; prevent religation of double-strand breaks during DNA replication/transcription/repair',
+                'Vinca Alkaloids': 'Bind β-tubulin; inhibit microtubule polymerization → freeze mitotic spindle in metaphase → cell cycle arrest',
+                'Taxanes': 'Bind β-tubulin; stabilize microtubules and prevent depolymerization → prevent chromosome separation → cell death',
+                'Anthracyclines': 'Intercalate into DNA; inhibit DNA/RNA synthesis; generate free radicals → lipid peroxidation + DNA strand breaks',
+                'Bleomycin & Mitomycin': 'Bleomycin: induces free radicals (via Fe²⁺→Fe³⁺) → DNA strand breaks; Mitomycin: alkylates DNA → interstrand cross-links',
+                'Antifolates': 'Inhibit dihydrofolate reductase (DHFR) → block THF formation → inhibit thymidine synthesis → DNA replication halted',
+                'Pyrimidine Analogs': '5-FU: forms complex with folic acid → inhibits thymidylate synthase → blocks dUMP→dTMP conversion; Cytarabine: incorporates into DNA',
+                'Purine Analogs': 'Cladribine → Cd-ATP (active form) → incorporates into DNA → strand breaks + shutdown of DNA synthesis/repair; depletes NAD/ATP',
+                'Alkylating Agents': 'Add alkyl groups to DNA (N-7 guanine); interstrand/intrastrand cross-linking → DNA breaks → replication suppressed'
+            },
+            'Cell Cycle': {
+                'Topoisomerase I Inhibitors': 'Cell cycle specific: S phase (DNA synthesis)',
+                'Topoisomerase II Inhibitors': 'Cell cycle specific: S phase or early G2 phase',
+                'Vinca Alkaloids': 'Cell cycle specific: M phase (metaphase arrest)',
+                'Taxanes': 'Cell cycle specific: M phase (metaphase arrest)',
+                'Anthracyclines': 'Cell cycle NON-specific (affect all phases)',
+                'Bleomycin & Mitomycin': 'Bleomycin: cell cycle specific (G2/M phase); Mitomycin: cell cycle NON-specific',
+                'Antifolates': 'Cell cycle specific: S phase (DNA synthesis)',
+                'Pyrimidine Analogs': 'Cell cycle specific: S phase (DNA synthesis)',
+                'Purine Analogs': 'Cell cycle specific: S phase (DNA synthesis)',
+                'Alkylating Agents': 'Cell cycle NON-specific (affect cycling + resting cells)'
+            },
+            'Key Drugs': {
+                'Topoisomerase I Inhibitors': 'Topotecan, Irinotecan',
+                'Topoisomerase II Inhibitors': 'Etoposide, Teniposide',
+                'Vinca Alkaloids': 'Vincristine, Vinblastine, Eribulin',
+                'Taxanes': 'Paclitaxel, Docetaxel, Cabazitaxel',
+                'Anthracyclines': 'Doxorubicin, Daunorubicin',
+                'Bleomycin & Mitomycin': 'Bleomycin, Mitomycin C',
+                'Antifolates': 'Methotrexate (MTX)',
+                'Pyrimidine Analogs': '5-Fluorouracil (5-FU), Cytarabine, Capecitabine',
+                'Purine Analogs': 'Cladribine, Azathioprine, 6-Mercaptopurine',
+                'Alkylating Agents': 'Cyclophosphamide, Ifosfamide, Busulfan, Carmustine, Procarbazine'
+            },
+            'Major Toxicities': {
+                'Topoisomerase I Inhibitors': 'Myelosuppression, N/V, fatigue; Irinotecan: severe diarrhea (82%) - early (cholinergic) + late (SN-38 metabolite damage)',
+                'Topoisomerase II Inhibitors': 'Myelosuppression, N/V, fatigue; Etoposide: secondary leukemia at high doses',
+                'Vinca Alkaloids': 'Peripheral neuropathy (reversible); alopecia; Vincristine: constipation, SIADH (hyponatremia)',
+                'Taxanes': 'Neutropenia, leukopenia (dose-limiting); peripheral neuropathy; Paclitaxel: hypersensitivity (premedicate); Docetaxel: fluid retention',
+                'Anthracyclines': 'Irreversible dose-dependent CARDIOTOXICITY (cardiomyopathy, CHF, pericarditis, myocarditis); myelosuppression',
+                'Bleomycin & Mitomycin': 'Bleomycin: PULMONARY FIBROSIS (10%, "bleomycin lung", dose-limiting); rare myelosuppression; Mitomycin: hemolytic uremic syndrome, renal failure',
+                'Antifolates': 'Myelosuppression (megaloblastic anemia, pancytopenia); pulmonary fibrosis; hepatotoxicity; mucositis; teratogenic (Category X)',
+                'Pyrimidine Analogs': 'Myelosuppression (severe with leucovorin); GI toxicity (N/V/diarrhea); mucositis; hand-foot syndrome; hepatotoxicity; pulmonary fibrosis',
+                'Purine Analogs': 'Myelosuppression; N/V; Cladribine: nephrotoxicity, neurotoxicity; Azathioprine: hepatotoxicity, ↑toxicity with allopurinol',
+                'Alkylating Agents': 'Cyclophosphamide: hemorrhagic cystitis (acrolein); Busulfan: pulmonary fibrosis (100% myelosuppression); Carmustine: CNS toxicity; all: alopecia, mucositis'
+            },
+            'Unique Features': {
+                'Topoisomerase I Inhibitors': 'Topo I = ONE-strand break; Early diarrhea (cholinergic) treated with atropine; Late diarrhea → dehydration/sepsis risk',
+                'Topoisomerase II Inhibitors': 'Topo II = TWO-strand break; Acts during S/early G2 phase; Etoposide can cause secondary leukemia',
+                'Vinca Alkaloids': 'Target hair follicles (rapid turnover) → common alopecia; Neuropathy usually reversible; Vincristine: constipation common',
+                'Taxanes': 'Premedication required: Paclitaxel (dexamethasone + diphenhydramine + H2 blocker); Docetaxel (dexamethasone for fluid retention)',
+                'Anthracyclines': 'Dexrazoxane (chemoprotective): chelates iron → prevents free radical cardiotoxicity; Most effective chemotherapy agents available',
+                'Bleomycin & Mitomycin': 'Bleomycin: low bleomycin hydrolase in lungs → drug persists → fibrosis; ↑risk if age >70; Pulmonary function tests needed',
+                'Antifolates': 'Leucovorin rescue: bypasses DHFR block → reverses myelosuppression; Also used in autoimmune disease (RA, psoriasis, Crohn\'s, SLE)',
+                'Pyrimidine Analogs': 'Leucovorin ENHANCES 5-FU (forms more stable complex); Cytarabine = prodrug → 5-FU via thymidine phosphorylase (↑in tumors)',
+                'Purine Analogs': 'Cladribine: prodrug → Cd-ATP (active); Also used in multiple sclerosis; Azathioprine: used in transplant rejection + autoimmune disease',
+                'Alkylating Agents': 'Cell cycle independent → effective against slow-growing solid tumors; Cyclophosphamide: requires CYP450 bioactivation; Carmustine: crosses BBB'
+            },
+            'Clinical Notes': {
+                'Topoisomerase I Inhibitors': 'Target rapidly dividing cancer cells during DNA replication; Monitor for severe diarrhea with irinotecan',
+                'Topoisomerase II Inhibitors': 'Used in lymphomas, lung cancer, testicular cancer; Monitor for secondary malignancies',
+                'Vinca Alkaloids': 'Derived from periwinkle plant; Monitor for neuropathy (numbness/tingling in hands/feet); Hold for severe neuropathy',
+                'Taxanes': 'Derived from yew tree bark; Severe hypersensitivity reactions require premedication protocol; Monitor neutrophil counts',
+                'Anthracyclines': 'Used in breast cancer, lymphomas, leukemias, sarcomas; Monitor cardiac function (echo/MUGA); Lifetime dose limits to prevent CHF',
+                'Bleomycin & Mitomycin': 'Bleomycin: baseline PFTs before treatment; monitor for cough/dyspnea/crackles; Used in lymphomas, testicular cancer',
+                'Antifolates': 'Pregnancy Category X (neural tube defects); Avoid in 1st trimester; Also suppresses autoimmune cells in RA/psoriasis/Crohn\'s/SLE',
+                'Pyrimidine Analogs': 'Used in colon cancer, breast cancer, leukemias; Leucovorin ↑5-FU potency but also ↑myelosuppression; Monitor CBC',
+                'Purine Analogs': 'Cladribine: used in B-cell lymphomas, hairy cell leukemia, MS; Monitor CBC, renal/hepatic function, infections (immunosuppression)',
+                'Alkylating Agents': 'Mesna prevents cyclophosphamide hemorrhagic cystitis (binds acrolein); Hydration essential; Also used in autoimmune disease (SLE, RA, MS)'
+            }
+        };
+
+        let gameState = {};
+        let stats = { correct: 0, total: 0 };
+        let instantFeedbackEnabled = true;
+
+        function toggleInstantFeedback() {
+            instantFeedbackEnabled = document.getElementById('instant-feedback').checked;
+            
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('correct', 'incorrect');
+            });
+            
+            if (instantFeedbackEnabled) {
+                let correct = 0;
+                let total = 0;
+                
+                document.querySelectorAll('.drop-zone').forEach(zone => {
+                    const item = zone.querySelector('.item-in-zone');
+                    if (item) {
+                        total++;
+                        const isCorrect = zone.dataset.category === item.dataset.category &&
+                                        correctAnswers[zone.dataset.category][zone.dataset.drugClass] === item.textContent;
+                        if (isCorrect) {
+                            correct++;
+                            zone.classList.add('correct');
+                        }
+                    }
+                });
+                
+                stats.correct = correct;
+                stats.total = total;
+            } else {
+                stats.correct = 0;
+                stats.total = 0;
+            }
+            
+            updateStats();
+        }
+
+        function initializeGame() {
+            const grid = document.getElementById('game-grid');
+            grid.innerHTML = '';
+
+            categories.forEach(category => {
+                const rowLabel = document.createElement('div');
+                rowLabel.className = 'row-label';
+                rowLabel.textContent = category;
+                grid.appendChild(rowLabel);
+
+                drugClasses.forEach(drugClass => {
+                    const dropZone = document.createElement('div');
+                    dropZone.className = 'drop-zone';
+                    dropZone.dataset.category = category;
+                    dropZone.dataset.drugClass = drugClass;
+                    
+                    dropZone.addEventListener('dragover', handleDragOver);
+                    dropZone.addEventListener('dragleave', handleDragLeave);
+                    dropZone.addEventListener('drop', handleDrop);
+                    
+                    grid.appendChild(dropZone);
+
+                    const key = `${category}-${drugClass}`;
+                    gameState[key] = null;
+                });
+            });
+
+            createDraggableItems();
+            updateStats();
+        }
+
+        function createDraggableItems() {
+            const container = document.getElementById('items-grid');
+            container.innerHTML = '';
+
+            const allItems = [];
+            
+            categories.forEach(category => {
+                drugClasses.forEach(drugClass => {
+                    allItems.push({
+                        category,
+                        drugClass,
+                        text: correctAnswers[category][drugClass]
+                    });
+                });
+            });
+
+            allItems.sort(() => Math.random() - 0.5);
+
+            const activeTab = document.querySelector('.tab-btn.active');
+            let activeFilter = 'all';
+            if (activeTab) {
+                const activeText = activeTab.textContent;
+                const categoryMap = {
+                    'All': 'all',
+                    'MOA': 'Mechanism',
+                    'Cycle': 'Cell Cycle',
+                    'Drugs': 'Key Drugs',
+                    'Toxicity': 'Major Toxicities',
+                    'Features': 'Unique Features',
+                    'Notes': 'Clinical Notes'
+                };
+                activeFilter = categoryMap[activeText] || 'all';
+            }
+
+            allItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'draggable-item';
+                div.draggable = true;
+                div.textContent = item.text;
+                div.dataset.category = item.category;
+                div.dataset.drugClass = item.drugClass;
+                div.dataset.id = `item-${index}`;
+
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragend', handleDragEnd);
+
+                if (activeFilter !== 'all' && item.category !== activeFilter) {
+                    div.classList.add('hidden');
+                }
+
+                container.appendChild(div);
+            });
+        }
+
+        function handleDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.textContent);
+            e.dataTransfer.setData('category', e.target.dataset.category);
+            e.dataTransfer.setData('drugClass', e.target.dataset.drugClass);
+            e.dataTransfer.setData('itemId', e.target.dataset.id);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            const category = e.dataTransfer.getData('category');
+            const drugClass = e.dataTransfer.getData('drugClass');
+            const itemId = e.dataTransfer.getData('itemId');
+            const text = e.dataTransfer.getData('text/html');
+
+            const dropZone = e.currentTarget;
+            
+            dropZone.classList.remove('incorrect', 'correct');
+
+            if (dropZone.children.length > 0) {
+                const oldItem = dropZone.querySelector('.item-in-zone');
+                if (oldItem) {
+                    returnItemToPool(oldItem);
+                }
+            }
+
+            const isCorrect = dropZone.dataset.category === category && 
+                            correctAnswers[category][dropZone.dataset.drugClass] === text;
+
+            if (instantFeedbackEnabled) {
+                if (!isCorrect) {
+                    dropZone.classList.add('incorrect');
+                    
+                    setTimeout(() => {
+                        dropZone.classList.remove('incorrect');
+                        
+                        const originalItem = document.querySelector(`.draggable-item[data-id="${itemId}"]`);
+                        if (!originalItem) {
+                            const container = document.getElementById('items-grid');
+                            const div = document.createElement('div');
+                            div.className = 'draggable-item';
+                            div.draggable = true;
+                            div.textContent = text;
+                            div.dataset.category = category;
+                            div.dataset.drugClass = drugClass;
+                            div.dataset.id = itemId;
+
+                            div.addEventListener('dragstart', handleDragStart);
+                            div.addEventListener('dragend', handleDragEnd);
+
+                            const activeTab = container.parentElement.querySelector('.tab-btn.active');
+                            if (activeTab) {
+                                const activeText = activeTab.textContent;
+                                const categoryMap = {
+                                    'MOA': 'Mechanism',
+                                    'Cycle': 'Cell Cycle',
+                                    'Drugs': 'Key Drugs',
+                                    'Toxicity': 'Major Toxicities',
+                                    'Features': 'Unique Features',
+                                    'Notes': 'Clinical Notes'
+                                };
+                                const filterCategory = categoryMap[activeText];
+                                if (filterCategory && category !== filterCategory) {
+                                    div.classList.add('hidden');
+                                }
+                            }
+
+                            container.appendChild(div);
+                        }
+                    }, 500);
+                    
+                    return;
+                } else {
+                    dropZone.classList.add('correct');
+                    stats.correct++;
+                    stats.total++;
+                }
+            }
+
+            dropZone.innerHTML = '';
+
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item-in-zone';
+            itemDiv.textContent = text;
+            itemDiv.dataset.category = category;
+            itemDiv.dataset.drugClass = drugClass;
+            itemDiv.dataset.itemId = itemId;
+            dropZone.appendChild(itemDiv);
+
+            const originalItem = document.querySelector(`[data-id="${itemId}"]`);
+            if (originalItem && originalItem.parentElement.id === 'items-grid') {
+                originalItem.remove();
+            }
+
+            const key = `${dropZone.dataset.category}-${dropZone.dataset.drugClass}`;
+            gameState[key] = { category, drugClass, itemId };
+            
+            if (instantFeedbackEnabled) {
+                updateStats();
+            }
+        }
+
+        function returnItemToPool(item) {
+            const container = document.getElementById('items-grid');
+            
+            const div = document.createElement('div');
+            div.className = 'draggable-item';
+            div.draggable = true;
+            div.textContent = item.textContent;
+            div.dataset.category = item.dataset.category;
+            div.dataset.drugClass = item.dataset.drugClass;
+            div.dataset.id = item.dataset.itemId;
+
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+
+            container.appendChild(div);
+            
+            const activeTab = container.parentElement.querySelector('.tab-btn.active');
+            if (activeTab) {
+                const activeFilter = activeTab.textContent;
+                const categoryMap = {
+                    'MOA': 'Mechanism',
+                    'Cycle': 'Cell Cycle',
+                    'Drugs': 'Key Drugs',
+                    'Toxicity': 'Major Toxicities',
+                    'Features': 'Unique Features',
+                    'Notes': 'Clinical Notes'
+                };
+                const filterCategory = categoryMap[activeFilter];
+                if (filterCategory && div.dataset.category !== filterCategory) {
+                    div.classList.add('hidden');
+                }
+            }
+        }
+
+        function checkAnswers() {
+            if (instantFeedbackEnabled) {
+                const total = stats.total;
+                const correct = stats.correct;
+                if (total > 0) {
+                    showFeedback(correct, total);
+                }
+                return;
+            }
+
+            let correct = 0;
+            let total = 0;
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                const item = zone.querySelector('.item-in-zone');
+                if (item) {
+                    total++;
+                    const isCorrect = zone.dataset.category === item.dataset.category &&
+                                    correctAnswers[zone.dataset.category][zone.dataset.drugClass] === item.textContent;
+                    
+                    if (isCorrect) {
+                        correct++;
+                        zone.classList.add('correct');
+                        zone.classList.remove('incorrect');
+                    } else {
+                        zone.classList.add('incorrect');
+                        zone.classList.remove('correct');
+                    }
+                }
+            });
+
+            stats.correct = correct;
+            stats.total = total;
+            updateStats();
+
+            if (total > 0) {
+                showFeedback(correct, total);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('correct-count').textContent = stats.correct;
+            document.getElementById('total-count').textContent = stats.total;
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        function showFeedback(correct, total) {
+            const feedback = document.getElementById('feedback');
+            const scoreDiv = document.getElementById('feedback-score');
+            const percentage = Math.round((correct / total) * 100);
+
+            let message = '';
+            if (percentage === 100) {
+                message = '💊 Oncology Mastery';
+            } else if (percentage >= 80) {
+                message = '✨ Excellent Knowledge';
+            } else if (percentage >= 60) {
+                message = '📚 Good Progress';
+            } else {
+                message = '📖 Keep Studying';
+            }
+
+            feedback.querySelector('h2').textContent = message;
+            scoreDiv.textContent = `You correctly identified ${correct} of ${total} characteristics (${percentage}%)`;
+            feedback.classList.add('show');
+        }
+
+        function closeFeedback() {
+            document.getElementById('feedback').classList.remove('show');
+        }
+
+        function resetGame() {
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.innerHTML = '';
+                zone.classList.remove('correct', 'incorrect');
+            });
+
+            gameState = {};
+            stats = { correct: 0, total: 0 };
+            
+            updateStats();
+            createDraggableItems();
+            filterItems('all');
+            closeFeedback();
+        }
+
+        function filterItems(category) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((category === 'all' && btn.textContent === 'All') ||
+                    (category === 'Mechanism' && btn.textContent === 'MOA') ||
+                    (category === 'Cell Cycle' && btn.textContent === 'Cycle') ||
+                    (category === 'Key Drugs' && btn.textContent === 'Drugs') ||
+                    (category === 'Major Toxicities' && btn.textContent === 'Toxicity') ||
+                    (category === 'Unique Features' && btn.textContent === 'Features') ||
+                    (category === 'Clinical Notes' && btn.textContent === 'Notes')) {
+                    btn.classList.add('active');
+                }
+            });
+
+            const items = document.querySelectorAll('.draggable-item');
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        }
+
+        // Initialize game
+        initializeGame();
+    </script>
+</body>
+</html>

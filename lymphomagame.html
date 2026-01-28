@@ -1,0 +1,1069 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lymphoma & Plasma Cell Disorders - Drag & Drop Study Game</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            overflow-x: hidden;
+            color: #e0e0e0;
+        }
+
+        .header {
+            text-align: center;
+            color: #e0e0e0;
+            margin-bottom: 30px;
+        }
+
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+            color: #64b5f6;
+        }
+
+        .header p {
+            font-size: 1.1em;
+            opacity: 0.9;
+            color: #b0b0b0;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .word-bank-container {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 380px;
+            background: #1e1e2e;
+            border-radius: 15px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.5);
+            overflow: hidden;
+            z-index: 1000;
+            max-height: 85vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #2d2d44;
+        }
+
+        .word-bank-header {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 15px 20px;
+            text-align: center;
+            font-size: 1.2em;
+            font-weight: bold;
+            cursor: move;
+            flex-shrink: 0;
+        }
+
+        .tabs {
+            display: flex;
+            background: #2d2d44;
+            border-bottom: 2px solid #3d3d5c;
+            overflow-x: auto;
+            flex-shrink: 0;
+        }
+
+        .tab {
+            padding: 15px 20px;
+            cursor: pointer;
+            background: #2d2d44;
+            border: none;
+            transition: all 0.3s;
+            whitespace: nowrap;
+            font-size: 1em;
+            font-weight: 600;
+            color: #b0b0b0;
+            flex: 1;
+            text-align: center;
+            min-width: 80px;
+            border-right: 1px solid #3d3d5c;
+        }
+
+        .tab:last-child {
+            border-right: none;
+        }
+
+        .tab:hover {
+            background: #3d3d5c;
+            color: #e0e0e0;
+        }
+
+        .tab.active {
+            background: #1e1e2e;
+            border-bottom: 4px solid #64b5f6;
+            color: #64b5f6;
+        }
+
+        .word-bank {
+            padding: 15px;
+            overflow-y: auto;
+            flex: 1;
+            min-height: 150px;
+            max-height: calc(85vh - 120px);
+            background: #1e1e2e;
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+            animation: fadeIn 0.3s;
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        .draggable-item {
+            background: linear-gradient(135deg, #4a90e2 0%, #357abd 100%);
+            color: white;
+            padding: 10px 12px;
+            margin: 6px 0;
+            border-radius: 8px;
+            cursor: move;
+            user-select: none;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.4);
+            transition: all 0.3s;
+            font-size: 0.9em;
+            text-align: center;
+            font-weight: 500;
+        }
+
+        .draggable-item:hover {
+            transform: scale(1.05);
+            box-shadow: 0 4px 10px rgba(74, 144, 226, 0.4);
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+        }
+
+        .main-content {
+            flex: 1;
+            min-width: 300px;
+            margin-right: 420px;
+        }
+
+        .disorder-card {
+            background: #1e1e2e;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+            border: 1px solid #2d2d44;
+        }
+
+        .disorder-card h2 {
+            color: #64b5f6;
+            margin-bottom: 15px;
+            font-size: 1.5em;
+            border-bottom: 3px solid #64b5f6;
+            padding-bottom: 10px;
+        }
+
+        .drop-zones {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin-top: 15px;
+        }
+
+        .drop-zone {
+            border: 2px dashed #3d3d5c;
+            border-radius: 10px;
+            padding: 15px;
+            min-height: 120px;
+            transition: all 0.3s;
+            background: #16213e;
+        }
+
+        .drop-zone h3 {
+            color: #81c784;
+            font-size: 1em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .drop-zone.drag-over {
+            border-color: #64b5f6;
+            background: #1a2a4e;
+            transform: scale(1.02);
+        }
+
+        .drop-zone .draggable-item {
+            margin: 5px 0;
+            font-size: 0.85em;
+            padding: 8px 10px;
+            cursor: pointer;
+        }
+
+        .drop-zone .draggable-item:hover {
+            opacity: 0.8;
+            transform: scale(1.02);
+        }
+
+        .drop-zone .draggable-item:hover::after {
+            content: ' (double-click to remove)';
+            font-size: 0.7em;
+            opacity: 0.8;
+        }
+
+        .controls {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            display: flex;
+            gap: 10px;
+            z-index: 999;
+            flex-wrap: wrap;
+            justify-content: center;
+            max-width: 90%;
+        }
+
+        .btn {
+            padding: 12px 24px;
+            border: none;
+            border-radius: 25px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: bold;
+            transition: all 0.3s;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+            white-space: nowrap;
+        }
+
+        .btn-check {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+        }
+
+        .btn-reset {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            color: white;
+        }
+
+        .btn-hint {
+            background: linear-gradient(135deg, #a18cd1 0%, #fbc2eb 100%);
+            color: white;
+        }
+
+        .btn-answers {
+            background: linear-gradient(135deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 15px rgba(0,0,0,0.3);
+        }
+
+        .correct {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%) !important;
+            animation: correctPulse 0.6s ease-out;
+        }
+
+        .incorrect {
+            background: linear-gradient(135deg, #eb3349 0%, #f45c43 100%) !important;
+            animation: incorrectShake 0.6s ease-out;
+        }
+
+        @keyframes correctPulse {
+            0% { transform: scale(1); box-shadow: 0 0 0 0 rgba(56, 239, 125, 0.7); }
+            50% { transform: scale(1.1); box-shadow: 0 0 20px 10px rgba(56, 239, 125, 0); }
+            100% { transform: scale(1); box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+        }
+
+        @keyframes incorrectShake {
+            0%, 100% { transform: translateX(0); }
+            10%, 30%, 50%, 70%, 90% { transform: translateX(-5px); }
+            20%, 40%, 60%, 80% { transform: translateX(5px); }
+        }
+
+        .score-board {
+            position: fixed;
+            top: 20px;
+            left: 20px;
+            background: #1e1e2e;
+            padding: 20px;
+            border-radius: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.5);
+            z-index: 999;
+            border: 1px solid #2d2d44;
+        }
+
+        .score-board h3 {
+            color: #64b5f6;
+            margin-bottom: 10px;
+        }
+
+        .score {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #81c784;
+        }
+
+        @media (max-width: 1200px) {
+            .word-bank-container {
+                position: static;
+                width: 100%;
+                max-height: 400px;
+                margin-bottom: 20px;
+            }
+            .main-content {
+                margin-right: 0;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header h1 {
+                font-size: 1.8em;
+            }
+            .drop-zones {
+                grid-template-columns: 1fr;
+            }
+            .controls {
+                flex-direction: row;
+                bottom: 10px;
+                gap: 8px;
+            }
+            .btn {
+                padding: 10px 16px;
+                font-size: 0.85em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🔬 Lymphoma & Plasma Cell Disorders</h1>
+        <p>Match the characteristics to the correct disorder! Items disappear when used.</p>
+        <p style="font-size: 0.9em; opacity: 0.8;">💡 Double-click any placed item to return it to the word bank</p>
+    </div>
+
+    <div class="score-board">
+        <h3>Score</h3>
+        <div class="score">0 / 0</div>
+    </div>
+
+    <div class="container">
+        <div class="word-bank-container" id="wordBank">
+            <div class="word-bank-header">
+                📚 Word Bank (Drag Me!)
+                <div style="font-size: 0.8em; opacity: 0.9; margin-top: 5px;" id="itemCounter">Loading items...</div>
+            </div>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('clinical')">Clinical</button>
+                <button class="tab" onclick="switchTab('genetics')">Genetics</button>
+                <button class="tab" onclick="switchTab('treatment')">Treatment</button>
+                <button class="tab" onclick="switchTab('pathology')">Pathology</button>
+            </div>
+            <div class="word-bank">
+                <div id="clinical" class="tab-content active"></div>
+                <div id="genetics" class="tab-content"></div>
+                <div id="treatment" class="tab-content"></div>
+                <div id="pathology" class="tab-content"></div>
+            </div>
+        </div>
+
+        <div class="main-content">
+            <!-- CLL/SLL -->
+            <div class="disorder-card">
+                <h2>Chronic Lymphocytic Leukemia / Small Lymphocytic Lymphoma (CLL/SLL)</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="CLL/SLL" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="CLL/SLL" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="CLL/SLL" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="CLL/SLL" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Follicular Lymphoma -->
+            <div class="disorder-card">
+                <h2>Follicular Lymphoma</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="Follicular" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Follicular" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Follicular" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Follicular" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- MALT Lymphoma -->
+            <div class="disorder-card">
+                <h2>MALT Lymphoma</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="MALT" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="MALT" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="MALT" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="MALT" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hairy Cell Leukemia -->
+            <div class="disorder-card">
+                <h2>Hairy Cell Leukemia</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="Hairy Cell" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Hairy Cell" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Hairy Cell" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Hairy Cell" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- DLBCL -->
+            <div class="disorder-card">
+                <h2>Diffuse Large B-Cell Lymphoma (DLBCL)</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="DLBCL" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="DLBCL" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="DLBCL" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="DLBCL" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Burkitt Lymphoma -->
+            <div class="disorder-card">
+                <h2>Burkitt Lymphoma</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="Burkitt" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Burkitt" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Burkitt" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Burkitt" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mantle Cell Lymphoma -->
+            <div class="disorder-card">
+                <h2>Mantle Cell Lymphoma</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="Mantle Cell" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Mantle Cell" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Mantle Cell" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Mantle Cell" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Mycosis Fungoides -->
+            <div class="disorder-card">
+                <h2>Mycosis Fungoides / Sézary Syndrome</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="Mycosis Fungoides" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Mycosis Fungoides" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Mycosis Fungoides" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Mycosis Fungoides" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ATLL -->
+            <div class="disorder-card">
+                <h2>Adult T-Cell Leukemia/Lymphoma (ATLL)</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="ATLL" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="ATLL" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="ATLL" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="ATLL" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Hodgkin Lymphoma -->
+            <div class="disorder-card">
+                <h2>Hodgkin Lymphoma</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="Hodgkin" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Hodgkin" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Hodgkin" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Hodgkin" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Multiple Myeloma -->
+            <div class="disorder-card">
+                <h2>Multiple Myeloma</h2>
+                <div class="drop-zones">
+                    <div class="drop-zone" data-disorder="Multiple Myeloma" data-category="clinical">
+                        <h3>Clinical</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Multiple Myeloma" data-category="genetics">
+                        <h3>Genetics</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Multiple Myeloma" data-category="treatment">
+                        <h3>Treatment</h3>
+                    </div>
+                    <div class="drop-zone" data-disorder="Multiple Myeloma" data-category="pathology">
+                        <h3>Pathology</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="controls">
+        <button class="btn btn-check" onclick="checkAnswers()">📊 Show Summary</button>
+        <button class="btn btn-hint" onclick="showHint()">💡 Hint</button>
+        <button class="btn btn-answers" onclick="showAllAnswers()">👁️ Show All Answers</button>
+        <button class="btn btn-reset" onclick="resetGame()">↻ Reset</button>
+    </div>
+
+    <script>
+        // Answer key
+        const answers = {
+            'CLL/SLL': {
+                clinical: ['Most common adult leukemia, Often asymptomatic, Lymphadenopathy'],
+                genetics: ['CD5+/CD23+, Trisomy 12'],
+                treatment: ['Ibrutinib, Venetoclax, Watch & wait'],
+                pathology: ['Smudge cells, Soccer ball nuclei']
+            },
+            'Follicular': {
+                clinical: ['Indolent, High-stage at presentation'],
+                genetics: ['t(14;18), BCL-2 overexpression, CD10+'],
+                treatment: ['R-CVP, Rituximab'],
+                pathology: ['Nodules without mantle zones, Centrocytes/centroblasts']
+            },
+            'MALT': {
+                clinical: ['Gastric symptoms, Extranodal mucosal sites'],
+                genetics: ['H. pylori association, CD5-/CD10-'],
+                treatment: ['Antibiotics for H. pylori eradication'],
+                pathology: ['Lymphoepithelial lesions']
+            },
+            'Hairy Cell': {
+                clinical: ['Splenomegaly, Pancytopenia, No LAD, 4:1 M:F'],
+                genetics: ['BRAF mutation >90%, CD11c+/CD25+/CD103+'],
+                treatment: ['Cladribine, Pentostatin (purine analogs)'],
+                pathology: ['Hairy projections, Bone marrow fibrosis']
+            },
+            'DLBCL': {
+                clinical: ['Rapidly enlarging LAD, Most common NHL, Aggressive'],
+                genetics: ['MYC/BCL2/BCL6 mutations, Double/triple hit'],
+                treatment: ['R-CHOP, R-pola-CHP'],
+                pathology: ['Large B cells, Diffuse infiltration']
+            },
+            'Burkitt': {
+                clinical: ['Fastest doubling time, Jaw mass (endemic), Abdominal (sporadic), EBV+'],
+                genetics: ['t(8;14), MYC overexpression, CD10+'],
+                treatment: ['CODOX-M, High-dose methotrexate'],
+                pathology: ['Starry-sky pattern, Tingible-body macrophages']
+            },
+            'Mantle Cell': {
+                clinical: ['High-stage, LAD + hepatosplenomegaly'],
+                genetics: ['t(11;14), Cyclin D1+, CD5+/CD23-'],
+                treatment: ['Rituximab + Bendamustine, High-dose cytarabine'],
+                pathology: ['Small-intermediate cells, Cyclin D1+']
+            },
+            'Mycosis Fungoides': {
+                clinical: ['Cutaneous T-cell, Skin plaques, Bathing suit distribution, Erythroderma (Sézary)'],
+                genetics: ['CD4+ T cells'],
+                treatment: ['Topical steroids, UV phototherapy, Bexarotene'],
+                pathology: ['Cerebriform nuclei, Pautrier microabscesses']
+            },
+            'ATLL': {
+                clinical: ['Hypercalcemia, Rash + LAD, Lytic bone lesions'],
+                genetics: ['HTLV-1 association, CD3+/CD4+/CD25+/CD7-'],
+                treatment: ['VCAP-AMP-VECP, Mogamulizumab'],
+                pathology: ['Flower-shaped nuclei']
+            },
+            'Hodgkin': {
+                clinical: ['Bimodal age, Mediastinal mass, B symptoms, Contiguous spread'],
+                genetics: ['EBV+ (40%), CD15+/CD30+, CD20-/CD45-'],
+                treatment: ['ABVD, Radiation, Brentuximab'],
+                pathology: ['Reed-Sternberg cells, Owl\'s eye appearance']
+            },
+            'Multiple Myeloma': {
+                clinical: ['CRAB: hyperCalcemia, Renal failure, Anemia, Bone pain'],
+                genetics: ['IGH translocations, >10% plasma cells'],
+                treatment: ['Daratumumab, Bortezomib, Lenalidomide, Stem cell transplant'],
+                pathology: ['Rouleaux, M spike on SPEP, Clockface nuclei, Lytic lesions']
+            }
+        };
+
+        // Create draggable items for each tab
+        const items = {
+            clinical: [
+                'Bimodal age, Mediastinal mass, B symptoms, Contiguous spread',
+                'Most common adult leukemia, Often asymptomatic, Lymphadenopathy',
+                'Fastest doubling time, Jaw mass (endemic), Abdominal (sporadic), EBV+',
+                'Cutaneous T-cell, Skin plaques, Bathing suit distribution, Erythroderma (Sézary)',
+                'CRAB: hyperCalcemia, Renal failure, Anemia, Bone pain',
+                'Gastric symptoms, Extranodal mucosal sites',
+                'High-stage, LAD + hepatosplenomegaly',
+                'Splenomegaly, Pancytopenia, No LAD, 4:1 M:F',
+                'Indolent, High-stage at presentation',
+                'Rapidly enlarging LAD, Most common NHL, Aggressive',
+                'Hypercalcemia, Rash + LAD, Lytic bone lesions'
+            ],
+            genetics: [
+                't(11;14), Cyclin D1+, CD5+/CD23-',
+                'BRAF mutation >90%, CD11c+/CD25+/CD103+',
+                'EBV+ (40%), CD15+/CD30+, CD20-/CD45-',
+                'CD4+ T cells',
+                'H. pylori association, CD5-/CD10-',
+                't(8;14), MYC overexpression, CD10+',
+                'IGH translocations, >10% plasma cells',
+                'CD5+/CD23+, Trisomy 12',
+                'HTLV-1 association, CD3+/CD4+/CD25+/CD7-',
+                'MYC/BCL2/BCL6 mutations, Double/triple hit',
+                't(14;18), BCL-2 overexpression, CD10+'
+            ],
+            treatment: [
+                'VCAP-AMP-VECP, Mogamulizumab',
+                'R-CVP, Rituximab',
+                'Topical steroids, UV phototherapy, Bexarotene',
+                'CODOX-M, High-dose methotrexate',
+                'Daratumumab, Bortezomib, Lenalidomide, Stem cell transplant',
+                'Ibrutinib, Venetoclax, Watch & wait',
+                'Rituximab + Bendamustine, High-dose cytarabine',
+                'Cladribine, Pentostatin (purine analogs)',
+                'ABVD, Radiation, Brentuximab',
+                'Antibiotics for H. pylori eradication',
+                'R-CHOP, R-pola-CHP'
+            ],
+            pathology: [
+                'Flower-shaped nuclei',
+                'Nodules without mantle zones, Centrocytes/centroblasts',
+                'Reed-Sternberg cells, Owl\'s eye appearance',
+                'Hairy projections, Bone marrow fibrosis',
+                'Cerebriform nuclei, Pautrier microabscesses',
+                'Lymphoepithelial lesions',
+                'Rouleaux, M spike on SPEP, Clockface nuclei, Lytic lesions',
+                'Small-intermediate cells, Cyclin D1+',
+                'Large B cells, Diffuse infiltration',
+                'Smudge cells, Soccer ball nuclei',
+                'Starry-sky pattern, Tingible-body macrophages'
+            ]
+        };
+
+        let draggedElement = null;
+        let correctCount = 0;
+        let totalCount = 0;
+
+        // Initialize the game
+        function initGame() {
+            // Populate word bank tabs
+            Object.keys(items).forEach(category => {
+                const container = document.getElementById(category);
+                items[category].forEach(item => {
+                    const div = createDraggableItem(item);
+                    container.appendChild(div);
+                });
+            });
+
+            // Setup drag and drop for all items
+            const allDraggables = document.querySelectorAll('.draggable-item');
+            allDraggables.forEach(draggable => {
+                addDragListeners(draggable);
+            });
+            
+            // Setup drop zones
+            setupDropZones();
+            
+            // Make word bank draggable
+            makeWordBankDraggable();
+            
+            // Update item counter
+            updateItemCounter();
+        }
+
+        function setupDropZones() {
+            const dropZones = document.querySelectorAll('.drop-zone');
+
+            dropZones.forEach(zone => {
+                zone.addEventListener('dragover', (e) => {
+                    e.preventDefault();
+                    zone.classList.add('drag-over');
+                });
+
+                zone.addEventListener('dragleave', () => {
+                    zone.classList.remove('drag-over');
+                });
+
+                zone.addEventListener('drop', (e) => {
+                    e.preventDefault();
+                    zone.classList.remove('drag-over');
+                    
+                    if (draggedElement) {
+                        const disorder = zone.dataset.disorder;
+                        const category = zone.dataset.category;
+                        const text = draggedElement.textContent;
+                        
+                        // Move the item (don't clone)
+                        zone.appendChild(draggedElement);
+                        
+                        // Instant feedback
+                        if (answers[disorder] && answers[disorder][category] && 
+                            answers[disorder][category].includes(text)) {
+                            draggedElement.classList.remove('incorrect');
+                            draggedElement.classList.add('correct');
+                            totalCount++;
+                            correctCount++;
+                        } else {
+                            draggedElement.classList.remove('correct');
+                            draggedElement.classList.add('incorrect');
+                            totalCount++;
+                        }
+                        
+                        updateScore();
+                        
+                        // Check if all items are correct
+                        checkCompletion();
+                        
+                        draggedElement = null;
+                    }
+                });
+            });
+        }
+
+        function checkCompletion() {
+            // Count total items in word banks
+            let itemsInBank = 0;
+            Object.keys(items).forEach(category => {
+                const container = document.getElementById(category);
+                itemsInBank += container.querySelectorAll('.draggable-item').length;
+            });
+            
+            // If no items left in bank and everything is correct
+            if (itemsInBank === 0 && totalCount > 0 && correctCount === totalCount) {
+                setTimeout(() => {
+                    alert('🎉🎊 CONGRATULATIONS! 🎊🎉\n\nYou got everything correct!\nYou\'re a lymphoma expert!');
+                }, 500);
+            }
+        }
+
+        function createDraggableItem(text) {
+            const div = document.createElement('div');
+            div.className = 'draggable-item';
+            div.textContent = text;
+            div.draggable = true;
+            return div;
+        }
+
+        function addDragListeners(element) {
+            element.addEventListener('dragstart', (e) => {
+                draggedElement = e.target;
+                e.target.classList.add('dragging');
+            });
+
+            element.addEventListener('dragend', (e) => {
+                e.target.classList.remove('dragging');
+            });
+            
+            // Double click to return to word bank
+            element.addEventListener('dblclick', (e) => {
+                returnToWordBank(e.target);
+            });
+        }
+
+        function returnToWordBank(item) {
+            const text = item.textContent;
+            const wasCorrect = item.classList.contains('correct');
+            const wasIncorrect = item.classList.contains('incorrect');
+            
+            // Update score if it was placed
+            if (wasCorrect) {
+                correctCount--;
+                totalCount--;
+            } else if (wasIncorrect) {
+                totalCount--;
+            }
+            
+            // Find which category this item belongs to
+            let targetCategory = null;
+            for (let category in items) {
+                if (items[category].includes(text)) {
+                    targetCategory = category;
+                    break;
+                }
+            }
+            
+            if (targetCategory) {
+                const container = document.getElementById(targetCategory);
+                item.classList.remove('correct', 'incorrect');
+                container.appendChild(item);
+                updateScore();
+            }
+        }
+
+        function switchTab(tabName) {
+            // Update tabs
+            document.querySelectorAll('.tab').forEach(tab => tab.classList.remove('active'));
+            event.target.classList.add('active');
+
+            // Update content
+            document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+            document.getElementById(tabName).classList.add('active');
+        }
+
+        function checkAnswers() {
+            // With instant feedback, this just shows a summary
+            if (totalCount === 0) {
+                alert('You haven\'t placed any items yet! Drag items from the word bank to the disorder boxes.');
+                return;
+            }
+            
+            const percentage = Math.round((correctCount / totalCount) * 100);
+            let message = `Score: ${correctCount} / ${totalCount} (${percentage}%)\n\n`;
+            
+            if (percentage === 100) {
+                message += '🎉 Perfect! You got everything correct!';
+            } else if (percentage >= 80) {
+                message += '👏 Great job! Keep up the good work!';
+            } else if (percentage >= 60) {
+                message += '👍 Good effort! Review the incorrect items.';
+            } else {
+                message += '📚 Keep studying! Double-click incorrect items to try again.';
+            }
+            
+            alert(message);
+        }
+
+        function updateScore() {
+            const scoreElement = document.querySelector('.score');
+            scoreElement.textContent = `${correctCount} / ${totalCount}`;
+            updateItemCounter();
+        }
+
+        function updateItemCounter() {
+            let itemsInBank = 0;
+            Object.keys(items).forEach(category => {
+                const container = document.getElementById(category);
+                if (container) {
+                    itemsInBank += container.querySelectorAll('.draggable-item').length;
+                }
+            });
+            
+            const counter = document.getElementById('itemCounter');
+            if (counter) {
+                counter.textContent = `${itemsInBank} items remaining`;
+            }
+        }
+
+        function showAllAnswers() {
+            if (!confirm('This will show all correct answers and fill in the entire game. Continue?')) {
+                return;
+            }
+            
+            // First, return any incorrectly placed items to word bank
+            const dropZones = document.querySelectorAll('.drop-zone');
+            dropZones.forEach(zone => {
+                const items = zone.querySelectorAll('.draggable-item.incorrect');
+                items.forEach(item => {
+                    returnToWordBank(item);
+                });
+            });
+            
+            // Now place all correct answers
+            Object.keys(answers).forEach(disorder => {
+                Object.keys(answers[disorder]).forEach(category => {
+                    // Find the correct drop zone
+                    const dropZone = document.querySelector(
+                        `.drop-zone[data-disorder="${disorder}"][data-category="${category}"]`
+                    );
+                    
+                    if (dropZone) {
+                        answers[disorder][category].forEach(answerText => {
+                            // Check if this item is already correctly placed
+                            const alreadyPlaced = Array.from(dropZone.querySelectorAll('.draggable-item'))
+                                .some(item => item.textContent === answerText && item.classList.contains('correct'));
+                            
+                            if (!alreadyPlaced) {
+                                // Find this item in the word bank
+                                let foundItem = null;
+                                Object.keys(items).forEach(cat => {
+                                    const container = document.getElementById(cat);
+                                    const itemElements = container.querySelectorAll('.draggable-item');
+                                    itemElements.forEach(itemEl => {
+                                        if (itemEl.textContent === answerText) {
+                                            foundItem = itemEl;
+                                        }
+                                    });
+                                });
+                                
+                                if (foundItem) {
+                                    // Move item to correct location
+                                    dropZone.appendChild(foundItem);
+                                    foundItem.classList.remove('incorrect');
+                                    foundItem.classList.add('correct');
+                                    totalCount++;
+                                    correctCount++;
+                                }
+                            }
+                        });
+                    }
+                });
+            });
+            
+            updateScore();
+            
+            setTimeout(() => {
+                alert('✅ All answers have been filled in!\n\nStudy the correct placements to learn the material.');
+            }, 300);
+        }
+
+        function showHint() {
+            const disorders = Object.keys(answers);
+            const randomDisorder = disorders[Math.floor(Math.random() * disorders.length)];
+            const categories = Object.keys(answers[randomDisorder]);
+            const randomCategory = categories[Math.floor(Math.random() * categories.length)];
+            const hints = answers[randomDisorder][randomCategory];
+            const randomHint = hints[Math.floor(Math.random() * hints.length)];
+            
+            alert(`💡 Hint: "${randomHint}" belongs to ${randomDisorder} in the ${randomCategory} category!`);
+        }
+
+        function resetGame() {
+            if (confirm('Are you sure you want to reset? This will return all items to the word bank.')) {
+                const dropZones = document.querySelectorAll('.drop-zone');
+                dropZones.forEach(zone => {
+                    const items = zone.querySelectorAll('.draggable-item');
+                    items.forEach(item => {
+                        returnToWordBank(item);
+                    });
+                });
+                
+                correctCount = 0;
+                totalCount = 0;
+                updateScore();
+            }
+        }
+
+        function makeWordBankDraggable() {
+            const wordBank = document.getElementById('wordBank');
+            const header = wordBank.querySelector('.word-bank-header');
+            
+            let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+            
+            header.onmousedown = dragMouseDown;
+            
+            function dragMouseDown(e) {
+                e.preventDefault();
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                document.onmouseup = closeDragElement;
+                document.onmousemove = elementDrag;
+            }
+            
+            function elementDrag(e) {
+                e.preventDefault();
+                pos1 = pos3 - e.clientX;
+                pos2 = pos4 - e.clientY;
+                pos3 = e.clientX;
+                pos4 = e.clientY;
+                
+                wordBank.style.position = 'fixed';
+                wordBank.style.top = (wordBank.offsetTop - pos2) + 'px';
+                wordBank.style.left = (wordBank.offsetLeft - pos1) + 'px';
+                wordBank.style.right = 'auto';
+            }
+            
+            function closeDragElement() {
+                document.onmouseup = null;
+                document.onmousemove = null;
+            }
+        }
+
+        // Initialize on load
+        window.onload = initGame;
+    </script>
+</body>
+</html>

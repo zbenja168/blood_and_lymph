@@ -1,0 +1,914 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Myeloid Disorders Mastery</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            color: #e0e0e0;
+            padding: 20px;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 30px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        h1 {
+            font-size: 2.5em;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            margin-bottom: 10px;
+        }
+
+        .subtitle {
+            color: #a0a0a0;
+            font-size: 1.1em;
+        }
+
+        .stats-controls {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            gap: 20px;
+            flex-wrap: wrap;
+        }
+
+        .stats {
+            display: flex;
+            gap: 30px;
+            background: rgba(255, 255, 255, 0.05);
+            padding: 15px 25px;
+            border-radius: 10px;
+            backdrop-filter: blur(10px);
+        }
+
+        .stat-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .stat-label {
+            font-size: 0.9em;
+            color: #a0a0a0;
+            margin-bottom: 5px;
+        }
+
+        .stat-value {
+            font-size: 1.5em;
+            font-weight: bold;
+            color: #00d2ff;
+        }
+
+        .controls {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            padding: 12px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.95em;
+            font-weight: 600;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .btn-primary {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(45deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+        }
+
+        .btn-success {
+            background: linear-gradient(45deg, #4facfe 0%, #00f2fe 100%);
+            color: white;
+        }
+
+        .btn-warning {
+            background: linear-gradient(45deg, #fa709a 0%, #fee140 100%);
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+
+        .main-container {
+            display: flex;
+            gap: 20px;
+            position: relative;
+        }
+
+        .word-bank {
+            position: sticky;
+            top: 20px;
+            width: 350px;
+            background: rgba(30, 30, 50, 0.95);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            max-height: calc(100vh - 40px);
+            overflow-y: auto;
+            align-self: flex-start;
+        }
+
+        .word-bank h2 {
+            color: #00d2ff;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+            text-align: center;
+        }
+
+        .tabs {
+            display: flex;
+            gap: 5px;
+            margin-bottom: 15px;
+            overflow-x: auto;
+            flex-wrap: wrap;
+        }
+
+        .tab {
+            padding: 8px 12px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            color: #a0a0a0;
+            font-size: 0.85em;
+            transition: all 0.3s ease;
+            white-space: nowrap;
+        }
+
+        .tab.active {
+            background: linear-gradient(45deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .tab:hover {
+            background: rgba(255, 255, 255, 0.2);
+        }
+
+        .items-container {
+            min-height: 200px;
+        }
+
+        .word-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 10px 15px;
+            margin-bottom: 10px;
+            border-radius: 8px;
+            cursor: move;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+            font-size: 0.9em;
+            line-height: 1.4;
+        }
+
+        .word-item:hover {
+            transform: translateX(5px);
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.5);
+        }
+
+        .word-item.dragging {
+            opacity: 0.5;
+            transform: rotate(2deg);
+        }
+
+        .cards-container {
+            flex: 1;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(450px, 1fr));
+            gap: 20px;
+        }
+
+        .disorder-card {
+            background: rgba(30, 30, 50, 0.8);
+            border-radius: 15px;
+            padding: 20px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+        }
+
+        .disorder-title {
+            font-size: 1.4em;
+            margin-bottom: 5px;
+            background: linear-gradient(45deg, #00d2ff, #3a7bd5);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            font-weight: bold;
+        }
+
+        .disorder-abbreviation {
+            color: #a0a0a0;
+            font-size: 0.9em;
+            margin-bottom: 15px;
+        }
+
+        .drop-zones {
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+        }
+
+        .drop-zone {
+            background: rgba(255, 255, 255, 0.03);
+            border: 2px dashed rgba(255, 255, 255, 0.2);
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 60px;
+            transition: all 0.3s ease;
+        }
+
+        .drop-zone-label {
+            font-size: 0.85em;
+            color: #a0a0a0;
+            margin-bottom: 8px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(102, 126, 234, 0.2);
+            border-color: #667eea;
+            transform: scale(1.02);
+        }
+
+        .drop-zone.correct {
+            background: rgba(76, 175, 80, 0.2);
+            border-color: #4caf50;
+            border-style: solid;
+        }
+
+        .drop-zone.incorrect {
+            background: rgba(244, 67, 54, 0.2);
+            border-color: #f44336;
+            border-style: solid;
+            animation: shake 0.5s;
+        }
+
+        .dropped-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            padding: 8px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 0.85em;
+            line-height: 1.3;
+            transition: all 0.3s ease;
+        }
+
+        .dropped-item:hover {
+            transform: translateX(-5px);
+            opacity: 0.8;
+        }
+
+        .dropped-item.correct-answer {
+            background: linear-gradient(135deg, #4caf50 0%, #66bb6a 100%);
+            cursor: not-allowed;
+        }
+
+        .dropped-item.incorrect-answer {
+            background: linear-gradient(135deg, #f44336 0%, #ef5350 100%);
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .summary-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(5px);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .summary-modal.active {
+            display: flex;
+        }
+
+        .summary-content {
+            background: rgba(30, 30, 50, 0.98);
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 90%;
+            max-height: 90%;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.7);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .summary-content h2 {
+            color: #00d2ff;
+            margin-bottom: 20px;
+            font-size: 2em;
+        }
+
+        .summary-disorder {
+            margin-bottom: 25px;
+            padding: 20px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        .summary-disorder h3 {
+            color: #667eea;
+            margin-bottom: 15px;
+            font-size: 1.3em;
+        }
+
+        .summary-category {
+            margin-bottom: 10px;
+        }
+
+        .summary-category-label {
+            color: #a0a0a0;
+            font-weight: 600;
+            margin-bottom: 5px;
+        }
+
+        .summary-category-value {
+            color: #e0e0e0;
+            line-height: 1.5;
+        }
+
+        .close-btn {
+            margin-top: 20px;
+            width: 100%;
+        }
+
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: linear-gradient(45deg, #667eea, #764ba2);
+            border-radius: 10px;
+        }
+
+        @media (max-width: 1200px) {
+            .main-container {
+                flex-direction: column;
+            }
+
+            .word-bank {
+                width: 100%;
+                position: relative;
+                top: 0;
+            }
+
+            .cards-container {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .hint-text {
+            background: rgba(255, 193, 7, 0.2);
+            border-left: 4px solid #ffc107;
+            padding: 10px;
+            margin-top: 10px;
+            border-radius: 5px;
+            font-size: 0.85em;
+            color: #ffd54f;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>🩺 Myeloid Disorders Mastery</h1>
+        <div class="subtitle">Master the key features of 6 myeloid neoplasms through interactive learning</div>
+    </div>
+
+    <div class="stats-controls">
+        <div class="stats">
+            <div class="stat-item">
+                <div class="stat-label">Score</div>
+                <div class="stat-value" id="score">0</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Correct</div>
+                <div class="stat-value" id="correct">0 / 30</div>
+            </div>
+            <div class="stat-item">
+                <div class="stat-label">Items Left</div>
+                <div class="stat-value" id="itemsLeft">30</div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="showSummary()">📋 Show Summary</button>
+            <button class="btn btn-secondary" onclick="showHint()">💡 Hint</button>
+            <button class="btn btn-success" onclick="showAllAnswers()">✓ Show All Answers</button>
+            <button class="btn btn-warning" onclick="resetGame()">🔄 Reset</button>
+        </div>
+    </div>
+
+    <div class="main-container">
+        <div class="word-bank">
+            <h2>📚 Word Bank</h2>
+            <div class="tabs">
+                <button class="tab active" onclick="switchTab('clinical')">Clinical</button>
+                <button class="tab" onclick="switchTab('pathology')">Pathology/Labs</button>
+                <button class="tab" onclick="switchTab('genetics')">Genetics</button>
+                <button class="tab" onclick="switchTab('treatment')">Treatment</button>
+                <button class="tab" onclick="switchTab('complications')">Complications</button>
+            </div>
+            <div id="itemsContainer" class="items-container"></div>
+        </div>
+
+        <div class="cards-container" id="cardsContainer"></div>
+    </div>
+
+    <div id="summaryModal" class="summary-modal">
+        <div class="summary-content">
+            <h2>📊 Complete Answer Key</h2>
+            <div id="summaryContent"></div>
+            <button class="btn btn-warning close-btn" onclick="closeSummary()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const disorders = [
+            {
+                name: "Chronic Myeloid Leukemia",
+                abbr: "CML",
+                clinical: "Chronic phase: fatigue, splenomegaly; Blast crisis: fever, bone pain, night sweats",
+                pathology: "Neutrophilic leukocytosis, left shift, basophilia, low LAP, <10% blasts",
+                genetics: "Philadelphia chromosome (t(9;22)), BCR::ABL fusion tyrosine kinase",
+                treatment: "TKIs: imatinib, dasatinib, ponatinib",
+                complications: "Blast crisis (>20% blasts), gout, retrosternal pain"
+            },
+            {
+                name: "Polycythemia Vera",
+                abbr: "PV",
+                clinical: "Aquagenic pruritus, erythromelalgia, plethora, hyperviscosity symptoms",
+                pathology: "Elevated Hgb/Hct (>16.5 men, >16.0 women), low EPO, hypercellular marrow",
+                genetics: "JAK2 mutation (~100%), constitutively active JAK-STAT pathway",
+                treatment: "Phlebotomy (<45% Hct), aspirin, hydroxyurea, IFNα",
+                complications: "Thrombosis (DVT, stroke, MI), spent phase (myelofibrosis)"
+            },
+            {
+                name: "Essential Thrombocythemia",
+                abbr: "ET",
+                clinical: "Often asymptomatic, headache, erythromelalgia, bleeding paradox",
+                pathology: "Thrombocytosis (>400,000), platelet anisocytosis, megakaryocyte clusters",
+                genetics: "JAK2 (~50%), CALR (~30%), MPL (5-10%)",
+                treatment: "Aspirin, hydroxyurea (high-risk), IFNα",
+                complications: "Thrombosis, bleeding, 1-2% transform to AML"
+            },
+            {
+                name: "Primary Myelofibrosis",
+                abbr: "PMF",
+                clinical: "Massive splenomegaly, abdominal fullness, fatigue",
+                pathology: "Teardrop cells (dacryocytes), dry tap, marrow fibrosis, leukoerythroblastic reaction",
+                genetics: "JAK2 (~50-60%), CALR (20-30%), MPL (5-10%)",
+                treatment: "Ruxolitinib, hydroxyurea, allogenic stem cell transplant (curative)",
+                complications: "Bone marrow failure, extramedullary hematopoiesis, 3-4% transform to AML"
+            },
+            {
+                name: "Myelodysplastic Neoplasms",
+                abbr: "MDS",
+                clinical: "Often asymptomatic, fatigue, infections, bleeding from cytopenias",
+                pathology: "Cytopenias, dysplasia >10%, <20% blasts, ring sideroblasts, hyposegmented neutrophils",
+                genetics: "Various mutations: del(5q) most common, no single defining mutation",
+                treatment: "Erythropoietin, lenalidomide (del(5q)), azacitidine, allogenic HSCT",
+                complications: "30% transform to AML, bone marrow failure"
+            },
+            {
+                name: "Acute Myeloid Leukemia",
+                abbr: "AML",
+                clinical: "Acute onset: fatigue, bleeding, infections, fever, bone pain",
+                pathology: ">20% blasts (or t(15;17)), Auer rods, pancytopenia, hyperleukocytosis",
+                genetics: "t(15;17) in APL (PML-RARα), t(8;21), inv(16), NPM1, FLT3",
+                treatment: "'7+3' (cytarabine + daunorubicin), ATRA/ATO for APL, HSCT",
+                complications: "Sepsis (leading cause of death), DIC (especially APL), tumor lysis, leukostasis"
+            }
+        ];
+
+        let currentTab = 'clinical';
+        let score = 0;
+        let correctCount = 0;
+        let totalItems = disorders.length * 5;
+        let usedItems = new Set();
+        let gameData = {};
+
+        // Initialize game
+        function initGame() {
+            createCards();
+            createWordBank();
+            updateStats();
+        }
+
+        function createCards() {
+            const container = document.getElementById('cardsContainer');
+            container.innerHTML = '';
+
+            disorders.forEach((disorder, index) => {
+                const card = document.createElement('div');
+                card.className = 'disorder-card';
+                card.innerHTML = `
+                    <div class="disorder-title">${disorder.name}</div>
+                    <div class="disorder-abbreviation">${disorder.abbr}</div>
+                    <div class="drop-zones">
+                        <div class="drop-zone" data-disorder="${index}" data-category="clinical">
+                            <div class="drop-zone-label">Clinical Presentation</div>
+                        </div>
+                        <div class="drop-zone" data-disorder="${index}" data-category="pathology">
+                            <div class="drop-zone-label">Pathology/Lab Findings</div>
+                        </div>
+                        <div class="drop-zone" data-disorder="${index}" data-category="genetics">
+                            <div class="drop-zone-label">Genetics/Pathophysiology</div>
+                        </div>
+                        <div class="drop-zone" data-disorder="${index}" data-category="treatment">
+                            <div class="drop-zone-label">Treatment</div>
+                        </div>
+                        <div class="drop-zone" data-disorder="${index}" data-category="complications">
+                            <div class="drop-zone-label">Complications</div>
+                        </div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+
+            // Add drop zone event listeners
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.addEventListener('dragover', handleDragOver);
+                zone.addEventListener('drop', handleDrop);
+                zone.addEventListener('dragleave', handleDragLeave);
+            });
+        }
+
+        function createWordBank() {
+            const allItems = [];
+            
+            disorders.forEach((disorder, index) => {
+                ['clinical', 'pathology', 'genetics', 'treatment', 'complications'].forEach(category => {
+                    allItems.push({
+                        text: disorder[category],
+                        category: category,
+                        disorderIndex: index,
+                        id: `${index}-${category}`
+                    });
+                });
+            });
+
+            // Randomize items
+            shuffleArray(allItems);
+
+            // Store for later use
+            window.allWordItems = allItems;
+
+            renderWordBank();
+        }
+
+        function renderWordBank() {
+            const container = document.getElementById('itemsContainer');
+            container.innerHTML = '';
+
+            const itemsToShow = window.allWordItems.filter(item => 
+                item.category === currentTab && !usedItems.has(item.id)
+            );
+
+            itemsToShow.forEach(item => {
+                const div = document.createElement('div');
+                div.className = 'word-item';
+                div.draggable = true;
+                div.textContent = item.text;
+                div.dataset.text = item.text;
+                div.dataset.category = item.category;
+                div.dataset.disorder = item.disorderIndex;
+                div.dataset.id = item.id;
+
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragend', handleDragEnd);
+
+                container.appendChild(div);
+            });
+        }
+
+        function switchTab(tab) {
+            currentTab = tab;
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            event.target.classList.add('active');
+            renderWordBank();
+        }
+
+        function handleDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/plain', JSON.stringify({
+                text: e.target.dataset.text,
+                category: e.target.dataset.category,
+                disorder: e.target.dataset.disorder,
+                id: e.target.dataset.id,
+                fromBank: true
+            }));
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            const data = JSON.parse(e.dataTransfer.getData('text/plain'));
+            const dropZone = e.currentTarget;
+            const expectedDisorder = parseInt(dropZone.dataset.disorder);
+            const expectedCategory = dropZone.dataset.category;
+            const actualDisorder = parseInt(data.disorder);
+            const actualCategory = data.category;
+
+            // Check if already has correct item
+            if (dropZone.classList.contains('correct')) {
+                return;
+            }
+
+            // Remove any existing incorrect item
+            const existingItem = dropZone.querySelector('.dropped-item');
+            if (existingItem && !existingItem.classList.contains('correct-answer')) {
+                const oldId = existingItem.dataset.id;
+                usedItems.delete(oldId);
+                existingItem.remove();
+            }
+
+            // Create dropped item
+            const droppedItem = document.createElement('div');
+            droppedItem.className = 'dropped-item';
+            droppedItem.textContent = data.text;
+            droppedItem.dataset.id = data.id;
+            droppedItem.dataset.category = data.category;
+            droppedItem.dataset.disorder = data.disorder;
+            droppedItem.draggable = true;
+
+            // Check if correct
+            const isCorrect = (expectedDisorder === actualDisorder && expectedCategory === actualCategory);
+
+            if (isCorrect) {
+                dropZone.classList.add('correct');
+                dropZone.classList.remove('incorrect');
+                droppedItem.classList.add('correct-answer');
+                droppedItem.draggable = false;
+                usedItems.add(data.id);
+                score += 10;
+                correctCount++;
+            } else {
+                dropZone.classList.add('incorrect');
+                dropZone.classList.remove('correct');
+                droppedItem.classList.add('incorrect-answer');
+                usedItems.add(data.id);
+                
+                // Make it draggable back to word bank
+                droppedItem.addEventListener('dragstart', function(e) {
+                    e.dataTransfer.setData('text/plain', JSON.stringify({
+                        text: data.text,
+                        category: data.category,
+                        disorder: data.disorder,
+                        id: data.id,
+                        fromBank: false
+                    }));
+                    droppedItem.style.opacity = '0.5';
+                });
+
+                droppedItem.addEventListener('dragend', function(e) {
+                    droppedItem.style.opacity = '1';
+                });
+
+                // Allow clicking to return to bank
+                droppedItem.addEventListener('click', function() {
+                    returnToBank(droppedItem, data);
+                });
+
+                setTimeout(() => {
+                    dropZone.classList.remove('incorrect');
+                }, 500);
+            }
+
+            dropZone.appendChild(droppedItem);
+            renderWordBank();
+            updateStats();
+        }
+
+        function returnToBank(item, data) {
+            if (item.classList.contains('correct-answer')) return;
+            
+            usedItems.delete(data.id);
+            item.remove();
+            
+            // Add back to top of word bank
+            const container = document.getElementById('itemsContainer');
+            const div = document.createElement('div');
+            div.className = 'word-item';
+            div.draggable = true;
+            div.textContent = data.text;
+            div.dataset.text = data.text;
+            div.dataset.category = data.category;
+            div.dataset.disorder = data.disorder;
+            div.dataset.id = data.id;
+
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+
+            container.insertBefore(div, container.firstChild);
+            
+            updateStats();
+        }
+
+        function updateStats() {
+            document.getElementById('score').textContent = score;
+            document.getElementById('correct').textContent = `${correctCount} / ${totalItems}`;
+            document.getElementById('itemsLeft').textContent = totalItems - usedItems.size;
+        }
+
+        function showHint() {
+            const emptyZones = Array.from(document.querySelectorAll('.drop-zone')).filter(zone => 
+                !zone.classList.contains('correct') && !zone.querySelector('.dropped-item')
+            );
+
+            if (emptyZones.length === 0) {
+                alert('All zones filled! Check your answers or show all answers.');
+                return;
+            }
+
+            const randomZone = emptyZones[Math.floor(Math.random() * emptyZones.length)];
+            const disorderIndex = parseInt(randomZone.dataset.disorder);
+            const category = randomZone.dataset.category;
+            const disorder = disorders[disorderIndex];
+
+            const existingHint = randomZone.querySelector('.hint-text');
+            if (existingHint) existingHint.remove();
+
+            const hint = document.createElement('div');
+            hint.className = 'hint-text';
+            hint.textContent = `💡 Hint: Look for items about ${disorder.abbr} in the ${category} tab!`;
+            randomZone.appendChild(hint);
+
+            setTimeout(() => hint.remove(), 5000);
+        }
+
+        function showAllAnswers() {
+            if (!confirm('This will show all correct answers. Continue?')) return;
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                if (zone.classList.contains('correct')) return;
+
+                const disorderIndex = parseInt(zone.dataset.disorder);
+                const category = zone.dataset.category;
+                const disorder = disorders[disorderIndex];
+                const correctText = disorder[category];
+                const itemId = `${disorderIndex}-${category}`;
+
+                // Remove any existing item
+                const existingItem = zone.querySelector('.dropped-item');
+                if (existingItem) {
+                    usedItems.delete(existingItem.dataset.id);
+                    existingItem.remove();
+                }
+
+                // Add correct answer
+                const droppedItem = document.createElement('div');
+                droppedItem.className = 'dropped-item correct-answer';
+                droppedItem.textContent = correctText;
+                droppedItem.dataset.id = itemId;
+                droppedItem.draggable = false;
+
+                zone.classList.add('correct');
+                zone.classList.remove('incorrect');
+                zone.appendChild(droppedItem);
+                usedItems.add(itemId);
+            });
+
+            correctCount = totalItems;
+            renderWordBank();
+            updateStats();
+        }
+
+        function showSummary() {
+            const modal = document.getElementById('summaryModal');
+            const content = document.getElementById('summaryContent');
+            content.innerHTML = '';
+
+            disorders.forEach(disorder => {
+                const div = document.createElement('div');
+                div.className = 'summary-disorder';
+                div.innerHTML = `
+                    <h3>${disorder.name} (${disorder.abbr})</h3>
+                    <div class="summary-category">
+                        <div class="summary-category-label">Clinical Presentation:</div>
+                        <div class="summary-category-value">${disorder.clinical}</div>
+                    </div>
+                    <div class="summary-category">
+                        <div class="summary-category-label">Pathology/Lab Findings:</div>
+                        <div class="summary-category-value">${disorder.pathology}</div>
+                    </div>
+                    <div class="summary-category">
+                        <div class="summary-category-label">Genetics/Pathophysiology:</div>
+                        <div class="summary-category-value">${disorder.genetics}</div>
+                    </div>
+                    <div class="summary-category">
+                        <div class="summary-category-label">Treatment:</div>
+                        <div class="summary-category-value">${disorder.treatment}</div>
+                    </div>
+                    <div class="summary-category">
+                        <div class="summary-category-label">Complications:</div>
+                        <div class="summary-category-value">${disorder.complications}</div>
+                    </div>
+                `;
+                content.appendChild(div);
+            });
+
+            modal.classList.add('active');
+        }
+
+        function closeSummary() {
+            document.getElementById('summaryModal').classList.remove('active');
+        }
+
+        function resetGame() {
+            if (!confirm('Reset the entire game? Your progress will be lost.')) return;
+
+            score = 0;
+            correctCount = 0;
+            usedItems.clear();
+            currentTab = 'clinical';
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('correct', 'incorrect');
+                const item = zone.querySelector('.dropped-item');
+                if (item) item.remove();
+                const hint = zone.querySelector('.hint-text');
+                if (hint) hint.remove();
+            });
+
+            document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+            document.querySelectorAll('.tab')[0].classList.add('active');
+
+            createWordBank();
+            updateStats();
+        }
+
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
+
+        // Initialize on load
+        initGame();
+    </script>
+</body>
+</html>

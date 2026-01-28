@@ -1,0 +1,1169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Zoonotic & Tropical Organisms</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --primary: #10b981;
+            --secondary: #059669;
+            --accent: #047857;
+            --bg-main: #0a1f1a;
+            --bg-secondary: #0f2922;
+            --bg-card: #14362e;
+            --text-primary: #ecfdf5;
+            --text-secondary: #a7f3d0;
+            --border: #334d47;
+            --success: #22c55e;
+            --error: #ef4444;
+            --plague: #dc2626;
+            --tularemia: #ea580c;
+            --cat-scratch: #d946ef;
+            --leptospirosis: #0ea5e9;
+            --filariasis: #8b5cf6;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: linear-gradient(135deg, var(--bg-main) 0%, var(--bg-secondary) 100%);
+            min-height: 100vh;
+            padding: 2rem;
+            color: var(--text-primary);
+        }
+
+        .container {
+            max-width: 2000px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+            animation: fadeInDown 0.6s ease-out;
+        }
+
+        h1 {
+            font-weight: 800;
+            font-size: 3rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+            letter-spacing: -0.02em;
+        }
+
+        .subtitle {
+            font-size: 1.1rem;
+            color: var(--text-secondary);
+            font-weight: 500;
+            letter-spacing: 0.02em;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-bottom: 2rem;
+            animation: fadeIn 0.8s ease-out 0.2s backwards;
+        }
+
+        .stat-card {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+            padding: 1rem 2rem;
+            border-radius: 15px;
+            box-shadow: 0 8px 16px rgba(0,0,0,0.4);
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-width: 120px;
+        }
+
+        .stat-value {
+            font-weight: 800;
+            font-size: 2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .stat-label {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            font-weight: 600;
+            margin-top: 0.25rem;
+        }
+
+        .game-board {
+            background: linear-gradient(135deg, var(--bg-card) 0%, var(--bg-secondary) 100%);
+            border-radius: 20px;
+            padding: 2rem;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 1px solid rgba(16, 185, 129, 0.15);
+            animation: fadeInUp 0.8s ease-out 0.4s backwards;
+            display: flex;
+            flex-direction: row;
+            gap: 2rem;
+        }
+
+        .grid-container {
+            flex: 1;
+            min-width: 0;
+            overflow-x: auto;
+        }
+
+        .word-bank-container {
+            width: 450px;
+            flex-shrink: 0;
+        }
+
+        /* ORGANISM HEADERS */
+        .organism-header-row {
+            display: grid;
+            grid-template-columns: 240px repeat(5, minmax(200px, 1fr));
+            gap: 0.6rem;
+            margin-bottom: 1rem;
+        }
+
+        .organism-header-spacer {
+            background: transparent;
+        }
+
+        .organism-header {
+            font-weight: 800;
+            font-size: 0.95rem;
+            padding: 1.2rem 0.8rem;
+            border-radius: 12px;
+            color: white;
+            text-align: center;
+            letter-spacing: 0.02em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+            border: 1px solid rgba(255,255,255,0.1);
+            position: relative;
+            overflow: hidden;
+            line-height: 1.4;
+        }
+
+        .organism-header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(255,255,255,0) 100%);
+        }
+
+        .plague-header {
+            background: linear-gradient(135deg, var(--plague), #b91c1c);
+        }
+
+        .tularemia-header {
+            background: linear-gradient(135deg, var(--tularemia), #c2410c);
+        }
+
+        .cat-scratch-header {
+            background: linear-gradient(135deg, var(--cat-scratch), #c026d3);
+        }
+
+        .leptospirosis-header {
+            background: linear-gradient(135deg, var(--leptospirosis), #0284c7);
+        }
+
+        .filariasis-header {
+            background: linear-gradient(135deg, var(--filariasis), #7c3aed);
+        }
+
+        .row-label {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            padding: 0.85rem;
+            border-radius: 10px;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            min-height: 120px;
+            box-shadow: 0 4px 8px rgba(0,0,0,0.3);
+        }
+
+        .game-grid {
+            display: grid;
+            grid-template-columns: 240px repeat(5, minmax(200px, 1fr));
+            gap: 0.6rem;
+        }
+
+        .drop-zone {
+            background: rgba(0,0,0,0.3);
+            border: 2px dashed rgba(16, 185, 129, 0.3);
+            border-radius: 10px;
+            min-height: 120px;
+            min-width: 200px;
+            padding: 0.7rem;
+            transition: all 0.3s ease;
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+            box-shadow: inset 0 2px 6px rgba(0,0,0,0.3);
+        }
+
+        .drop-zone.drag-over {
+            background: rgba(16, 185, 129, 0.1);
+            border-color: var(--primary);
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3);
+        }
+
+        .drop-zone.correct {
+            background: rgba(34, 197, 94, 0.15);
+            border-color: var(--success);
+            border-style: solid;
+            box-shadow: 0 0 12px rgba(34, 197, 94, 0.4);
+        }
+
+        .drop-zone.incorrect {
+            background: rgba(239, 68, 68, 0.15);
+            border-color: var(--error);
+            border-style: solid;
+            animation: shake 0.4s ease;
+            box-shadow: 0 0 12px rgba(239, 68, 68, 0.4);
+        }
+
+        .draggable-items {
+            background: linear-gradient(135deg, var(--bg-secondary), var(--bg-card));
+            border-radius: 15px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            padding: 1.25rem;
+            min-height: 500px;
+            max-height: 700px;
+            overflow-y: auto;
+            position: sticky;
+            top: 2rem;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.4);
+        }
+
+        .word-bank-title {
+            font-weight: 800;
+            font-size: 1.2rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+            text-align: center;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+        }
+
+        .instant-feedback-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+            padding: 0.75rem;
+            background: rgba(0,0,0,0.3);
+            border-radius: 12px;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+        }
+
+        .instant-feedback-toggle label {
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: var(--text-primary);
+            cursor: pointer;
+            user-select: none;
+            letter-spacing: 0.05em;
+        }
+
+        .toggle-switch {
+            position: relative;
+            width: 50px;
+            height: 26px;
+            cursor: pointer;
+        }
+
+        .toggle-switch input {
+            opacity: 0;
+            width: 0;
+            height: 0;
+        }
+
+        .toggle-slider {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-color: var(--border);
+            border-radius: 26px;
+            transition: 0.3s;
+            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
+        }
+
+        .toggle-slider:before {
+            content: "";
+            position: absolute;
+            height: 18px;
+            width: 18px;
+            left: 4px;
+            bottom: 4px;
+            background-color: white;
+            border-radius: 50%;
+            transition: 0.3s;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .toggle-switch input:checked + .toggle-slider {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
+
+        .toggle-switch input:checked + .toggle-slider:before {
+            transform: translateX(24px);
+        }
+
+        .word-bank-tabs {
+            display: flex;
+            gap: 0.4rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .tab-btn {
+            flex: 1;
+            min-width: 55px;
+            padding: 0.6rem 0.35rem;
+            border: 1px solid rgba(16, 185, 129, 0.3);
+            background: rgba(0,0,0,0.3);
+            border-radius: 8px;
+            font-size: 0.65rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            color: var(--text-secondary);
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+        }
+
+        .tab-btn:hover {
+            border-color: var(--primary);
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .tab-btn.active {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: var(--primary);
+            box-shadow: 0 4px 8px rgba(16, 185, 129, 0.3);
+        }
+
+        .items-grid {
+            display: flex;
+            flex-direction: column;
+            gap: 0.7rem;
+        }
+
+        .draggable-item {
+            background: rgba(0,0,0,0.4);
+            padding: 0.85rem;
+            border-radius: 8px;
+            border: 1px solid rgba(16, 185, 129, 0.25);
+            cursor: move;
+            user-select: none;
+            font-size: 0.8rem;
+            line-height: 1.5;
+            transition: all 0.3s ease;
+            box-shadow: 0 3px 6px rgba(0,0,0,0.3);
+            color: var(--text-primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .draggable-item:hover {
+            border-color: var(--primary);
+            box-shadow: 0 6px 12px rgba(16, 185, 129, 0.3);
+            transform: translateY(-3px);
+            background: rgba(16, 185, 129, 0.1);
+        }
+
+        .draggable-item.dragging {
+            opacity: 0.5;
+        }
+
+        .draggable-item.hidden {
+            display: none;
+        }
+
+        .item-in-zone {
+            background: rgba(0,0,0,0.5);
+            padding: 0.6rem;
+            border-radius: 6px;
+            font-size: 0.74rem;
+            line-height: 1.4;
+            border: 1px solid rgba(16, 185, 129, 0.2);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+            color: var(--text-primary);
+            word-wrap: break-word;
+            overflow-wrap: break-word;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .controls {
+            display: flex;
+            justify-content: center;
+            gap: 1.5rem;
+            margin-top: 2rem;
+            animation: fadeIn 0.8s ease-out 0.6s backwards;
+        }
+
+        .btn {
+            padding: 0.875rem 2.5rem;
+            border: 2px solid var(--primary);
+            border-radius: 12px;
+            font-size: 0.95rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.3);
+            position: relative;
+            overflow: hidden;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .btn-primary:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.4);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(16, 185, 129, 0.1);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 20px rgba(16, 185, 129, 0.2);
+        }
+
+        .feedback-modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+            animation: fadeIn 0.3s ease;
+            backdrop-filter: blur(4px);
+        }
+
+        .feedback-modal.show {
+            display: flex;
+        }
+
+        .feedback-content {
+            background: linear-gradient(135deg, var(--bg-card), var(--bg-secondary));
+            padding: 3rem;
+            border-radius: 20px;
+            text-align: center;
+            max-width: 500px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.6);
+            border: 2px solid rgba(16, 185, 129, 0.3);
+            animation: scaleIn 0.3s ease;
+        }
+
+        .feedback-content h2 {
+            font-weight: 800;
+            font-size: 2.5rem;
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 1rem;
+        }
+
+        .feedback-score {
+            font-size: 1.3rem;
+            color: var(--text-secondary);
+            margin-bottom: 2rem;
+            line-height: 1.6;
+        }
+
+        .close-btn {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            color: white;
+            border: none;
+            padding: 0.875rem 2.5rem;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            box-shadow: 0 4px 12px rgba(16, 185, 129, 0.4);
+            transition: all 0.3s ease;
+        }
+
+        .close-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.5);
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes scaleIn {
+            from {
+                opacity: 0;
+                transform: scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: scale(1);
+            }
+        }
+
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            25% { transform: translateX(-5px); }
+            75% { transform: translateX(5px); }
+        }
+
+        .draggable-items::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        .draggable-items::-webkit-scrollbar-track {
+            background: rgba(0,0,0,0.3);
+            border-radius: 10px;
+        }
+
+        .draggable-items::-webkit-scrollbar-thumb {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            border-radius: 10px;
+        }
+
+        @media (max-width: 1600px) {
+            .organism-header-row, .game-grid {
+                grid-template-columns: 220px repeat(5, minmax(180px, 1fr));
+                gap: 0.5rem;
+            }
+            .word-bank-container {
+                width: 420px;
+            }
+            .organism-header {
+                font-size: 0.85rem;
+                padding: 1rem 0.6rem;
+                min-width: 180px;
+            }
+            .drop-zone {
+                min-width: 180px;
+            }
+        }
+
+        @media (max-width: 1200px) {
+            .game-board {
+                flex-direction: column;
+            }
+            .word-bank-container {
+                width: 100%;
+            }
+            .draggable-items {
+                min-height: auto;
+                max-height: 400px;
+            }
+        }
+
+        @media (max-width: 900px) {
+            h1 {
+                font-size: 2rem;
+            }
+            .organism-header-row, .game-grid {
+                grid-template-columns: 1fr;
+            }
+            .organism-header-spacer {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>🦠 Zoonotic & Tropical Organisms</h1>
+            <p class="subtitle">High-yield clinical characteristics & key pearls</p>
+        </header>
+
+        <div class="stats">
+            <div class="stat-card">
+                <div class="stat-value" id="correct-count">0</div>
+                <div class="stat-label">Correct</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="total-count">0</div>
+                <div class="stat-label">Total Placed</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value" id="accuracy">0%</div>
+                <div class="stat-label">Accuracy</div>
+            </div>
+        </div>
+
+        <div class="game-board">
+            <div class="grid-container">
+                <!-- ORGANISM HEADERS -->
+                <div class="organism-header-row">
+                    <div class="organism-header-spacer"></div>
+                    <div class="organism-header plague-header">Yersinia pestis<br>(Plague)</div>
+                    <div class="organism-header tularemia-header">Francisella tularensis<br>(Tularemia)</div>
+                    <div class="organism-header cat-scratch-header">Bartonella henselae<br>(Cat Scratch)</div>
+                    <div class="organism-header leptospirosis-header">Leptospira spp.<br>(Leptospirosis)</div>
+                    <div class="organism-header filariasis-header">Wuchereria bancrofti<br>(Filariasis)</div>
+                </div>
+
+                <div id="game-grid" class="game-grid">
+                    <!-- Grid will be dynamically generated -->
+                </div>
+            </div>
+
+            <div class="word-bank-container">
+                <div class="draggable-items">
+                    <div class="word-bank-title">Word Bank</div>
+                    
+                    <div class="instant-feedback-toggle">
+                        <label for="instant-feedback">Instant Feedback</label>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="instant-feedback" checked onchange="toggleInstantFeedback()">
+                            <span class="toggle-slider"></span>
+                        </label>
+                    </div>
+                    
+                    <div class="word-bank-tabs">
+                        <button class="tab-btn active" onclick="filterItems('all')">All</button>
+                        <button class="tab-btn" onclick="filterItems('Disease Forms')">Forms</button>
+                        <button class="tab-btn" onclick="filterItems('Geography')">Geography</button>
+                        <button class="tab-btn" onclick="filterItems('Transmission')">Transmission</button>
+                        <button class="tab-btn" onclick="filterItems('Lab Diagnosis')">Lab Dx</button>
+                        <button class="tab-btn" onclick="filterItems('Treatment')">Treatment</button>
+                        <button class="tab-btn" onclick="filterItems('Key Pearls')">Pearls</button>
+                    </div>
+                    <div id="items-grid" class="items-grid">
+                        <!-- Draggable items will be dynamically generated -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <button class="btn btn-primary" onclick="checkAnswers()">Check Answers</button>
+            <button class="btn btn-secondary" onclick="resetGame()">Reset Game</button>
+        </div>
+    </div>
+
+    <div id="feedback" class="feedback-modal">
+        <div class="feedback-content">
+            <h2>Results</h2>
+            <div id="feedback-score" class="feedback-score"></div>
+            <button class="close-btn" onclick="closeFeedback()">Close</button>
+        </div>
+    </div>
+
+    <script>
+        const categories = ['Disease Forms', 'Geography', 'Transmission', 'Lab Diagnosis', 'Treatment', 'Key Pearls'];
+        const organisms = [
+            'Yersinia pestis',
+            'Francisella tularensis',
+            'Bartonella henselae',
+            'Leptospira spp.',
+            'Wuchereria bancrofti'
+        ];
+
+        const correctAnswers = {
+            'Disease Forms': {
+                'Yersinia pestis': 'Bubonic (80-90%): buboes, fever; Septicemic: sepsis, DIC, necrosis (Black Death); Pneumonic: necrotizing pneumonia, hemoptysis',
+                'Francisella tularensis': 'Ulceroglandular (75-85%): ulcer + lymphadenopathy; Pneumonic (5-15%): atypical pneumonia; Typhoidal (13%): systemic fever without localization',
+                'Bartonella henselae': 'Cat Scratch Disease: papule/pustule + regional lymphadenopathy (axillary/cervical/epitrochlear); Bacillary Angiomatosis: red/purple vascular skin nodules (immunocompromised only)',
+                'Leptospira spp.': 'Mild (most): fever, myalgia (calves/back), conjunctival suffusion; Severe (5-10%): Weil disease - jaundice, AKI, hemorrhage, ARDS',
+                'Wuchereria bancrofti': 'Asymptomatic (most); Acute: filarial fever, lymphangitis, lymphadenitis (groin/axilla); Chronic: lymphedema, elephantiasis, hydrocele'
+            },
+            'Geography': {
+                'Yersinia pestis': 'Endemic in Western US (0-17 cases/year); historically Europe (Black Death 1347-1351: 75-200M deaths)',
+                'Francisella tularensis': 'US: Ozarks (Missouri/Arkansas); 150-200 cases/year in US; Tulare County, CA (first identified 1911)',
+                'Bartonella henselae': 'Worldwide; higher in kittens than adult cats; children, elderly, immunocompromised at highest risk',
+                'Leptospira spp.': 'Global: tropical/subtropical regions; 1M cases/year, 60K deaths; US: 100-200 cases/year (50% in Hawaii)',
+                'Wuchereria bancrofti': 'Endemic: Africa, Asia, Pacific Islands, parts of Latin America; 657M people in 39 countries live in endemic areas (2023)'
+            },
+            'Transmission': {
+                'Yersinia pestis': 'Flea bites (from rodents, prairie dogs, squirrels); contact with infected animal/carcass; person-to-person ONLY in pneumonic form',
+                'Francisella tularensis': 'Direct contact with rabbits; tick/deer fly bites; eating undercooked meat; aerosolized bacteria (skinning rabbits); ID50: 10-50 bacteria',
+                'Bartonella henselae': 'Cat scratches or bites (cats groom → bacteria on paws/mouth); kittens carry higher rates than adult cats',
+                'Leptospira spp.': 'Contact with water/soil/food contaminated with urine of infected animals (cattle, pigs, dogs, rodents); enters through skin/mucosa',
+                'Wuchereria bancrofti': 'Mosquito bites (Culex, Anopheles, Aedes); larvae enter skin → lymphatics → mature over 9-12 months'
+            },
+            'Lab Diagnosis': {
+                'Yersinia pestis': 'Bipolar staining (safety pin appearance); RADT for F1 protein; serology (anti-F1 antibodies); culture (BSL3); aspirate from bubo, blood, sputum',
+                'Francisella tularensis': 'Poor Gram stain (immunofluorescence better); serology (antibodies take weeks); culture on charcoal agar with cysteine (BSL3); PCR for rapid detection',
+                'Bartonella henselae': 'Clinical diagnosis (exposure history); silver stains (poor Gram stain); serology (antibodies persist years); PCR on lymph node aspirate/lesion tissue',
+                'Leptospira spp.': 'PCR (preferred method); serology (IgM/IgG - takes 2 weeks); antigen detection; blood (early) and urine (persists months-years); difficult to culture',
+                'Wuchereria bancrofti': 'Blood smear at night (10PM-2AM) - nocturnal microfilariae; Giemsa or H&E stain; antigen detection (circulates all day); filarial dance sign (ultrasound)'
+            },
+            'Treatment': {
+                'Yersinia pestis': 'Severe: gentamicin (IV); Mild: ciprofloxacin or levofloxacin (PO/IV); Alternative: doxycycline (PO/IV); DO NOT delay treatment',
+                'Francisella tularensis': 'Severe: gentamicin (IV); Mild: ciprofloxacin or levofloxacin (PO/IV); Alternative: doxycycline (PO/IV); DO NOT delay treatment',
+                'Bartonella henselae': 'CSD (immunocompetent): azithromycin (PO) - shortens lymphadenitis; Bacillary Angiomatosis: doxycycline or erythromycin × 3 months',
+                'Leptospira spp.': 'Mild: doxycycline or azithromycin (PO); Severe/hospitalized: doxycycline (PO/IV); Alternative: penicillin or ceftriaxone',
+                'Wuchereria bancrofti': 'Early: diethylcarbamazine (DEC) - micro/macrofilaricidal; Alternative: doxycycline or albendazole; Advanced elephantiasis: yearly ivermectin/albendazole + supportive care'
+            },
+            'Key Pearls': {
+                'Yersinia pestis': 'Protein-based capsule (F1 antigen, not polysaccharide); Yops + T3SS; mortality: bubonic 50-60%→<10% with Rx; pneumonic ~100%→5-15% with Rx',
+                'Francisella tularensis': 'Ulceration distinguishes from plague; extremely low ID50 (10-50 bacteria); bioterrorism agent; hunters at high risk (skinning rabbits)',
+                'Bartonella henselae': 'Necrotizing granulomas at inoculation site and lymph nodes; BA vs Kaposi: BA tender/bleeds (neutrophils), Kaposi painless (lymphocytes)',
+                'Leptospira spp.': 'Spirochete with hooked ends (question mark); conjunctival suffusion (pathognomonic); consider in differential with dengue/chikungunya in endemic areas',
+                'Wuchereria bancrofti': 'Nocturnal periodicity (collect blood 10PM-2AM); adult worms live 6-8 years; advanced elephantiasis irreversible (permanent fibrosis); preventable with bed nets'
+            }
+        };
+
+        let gameState = {};
+        let stats = { correct: 0, total: 0 };
+        let instantFeedbackEnabled = true;
+
+        function toggleInstantFeedback() {
+            instantFeedbackEnabled = document.getElementById('instant-feedback').checked;
+            
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.classList.remove('correct', 'incorrect');
+            });
+            
+            if (instantFeedbackEnabled) {
+                let correct = 0;
+                let total = 0;
+                
+                document.querySelectorAll('.drop-zone').forEach(zone => {
+                    const item = zone.querySelector('.item-in-zone');
+                    if (item) {
+                        total++;
+                        const isCorrect = zone.dataset.category === item.dataset.category &&
+                                        correctAnswers[zone.dataset.category][zone.dataset.organism] === item.textContent;
+                        if (isCorrect) {
+                            correct++;
+                            zone.classList.add('correct');
+                        }
+                    }
+                });
+                
+                stats.correct = correct;
+                stats.total = total;
+            } else {
+                stats.correct = 0;
+                stats.total = 0;
+            }
+            
+            updateStats();
+        }
+
+        function initializeGame() {
+            const grid = document.getElementById('game-grid');
+            grid.innerHTML = '';
+
+            categories.forEach(category => {
+                const rowLabel = document.createElement('div');
+                rowLabel.className = 'row-label';
+                rowLabel.textContent = category;
+                grid.appendChild(rowLabel);
+
+                organisms.forEach(organism => {
+                    const dropZone = document.createElement('div');
+                    dropZone.className = 'drop-zone';
+                    dropZone.dataset.category = category;
+                    dropZone.dataset.organism = organism;
+                    
+                    dropZone.addEventListener('dragover', handleDragOver);
+                    dropZone.addEventListener('dragleave', handleDragLeave);
+                    dropZone.addEventListener('drop', handleDrop);
+                    
+                    grid.appendChild(dropZone);
+
+                    const key = `${category}-${organism}`;
+                    gameState[key] = null;
+                });
+            });
+
+            createDraggableItems();
+            updateStats();
+        }
+
+        function createDraggableItems() {
+            const container = document.getElementById('items-grid');
+            container.innerHTML = '';
+
+            const allItems = [];
+            
+            categories.forEach(category => {
+                organisms.forEach(organism => {
+                    allItems.push({
+                        category,
+                        organism,
+                        text: correctAnswers[category][organism]
+                    });
+                });
+            });
+
+            allItems.sort(() => Math.random() - 0.5);
+
+            const activeTab = document.querySelector('.tab-btn.active');
+            let activeFilter = 'all';
+            if (activeTab) {
+                const activeText = activeTab.textContent;
+                const categoryMap = {
+                    'All': 'all',
+                    'Forms': 'Disease Forms',
+                    'Geography': 'Geography',
+                    'Transmission': 'Transmission',
+                    'Lab Dx': 'Lab Diagnosis',
+                    'Treatment': 'Treatment',
+                    'Pearls': 'Key Pearls'
+                };
+                activeFilter = categoryMap[activeText] || 'all';
+            }
+
+            allItems.forEach((item, index) => {
+                const div = document.createElement('div');
+                div.className = 'draggable-item';
+                div.draggable = true;
+                div.textContent = item.text;
+                div.dataset.category = item.category;
+                div.dataset.organism = item.organism;
+                div.dataset.id = `item-${index}`;
+
+                div.addEventListener('dragstart', handleDragStart);
+                div.addEventListener('dragend', handleDragEnd);
+
+                if (activeFilter !== 'all' && item.category !== activeFilter) {
+                    div.classList.add('hidden');
+                }
+
+                container.appendChild(div);
+            });
+        }
+
+        function handleDragStart(e) {
+            e.target.classList.add('dragging');
+            e.dataTransfer.effectAllowed = 'move';
+            e.dataTransfer.setData('text/html', e.target.textContent);
+            e.dataTransfer.setData('category', e.target.dataset.category);
+            e.dataTransfer.setData('organism', e.target.dataset.organism);
+            e.dataTransfer.setData('itemId', e.target.dataset.id);
+        }
+
+        function handleDragEnd(e) {
+            e.target.classList.remove('dragging');
+        }
+
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            e.currentTarget.classList.add('drag-over');
+        }
+
+        function handleDragLeave(e) {
+            e.currentTarget.classList.remove('drag-over');
+        }
+
+        function handleDrop(e) {
+            e.preventDefault();
+            e.currentTarget.classList.remove('drag-over');
+
+            const category = e.dataTransfer.getData('category');
+            const organism = e.dataTransfer.getData('organism');
+            const itemId = e.dataTransfer.getData('itemId');
+            const text = e.dataTransfer.getData('text/html');
+
+            const dropZone = e.currentTarget;
+            
+            dropZone.classList.remove('incorrect', 'correct');
+
+            if (dropZone.children.length > 0) {
+                const oldItem = dropZone.querySelector('.item-in-zone');
+                if (oldItem) {
+                    returnItemToPool(oldItem);
+                }
+            }
+
+            const isCorrect = dropZone.dataset.category === category && 
+                            correctAnswers[category][dropZone.dataset.organism] === text;
+
+            if (instantFeedbackEnabled) {
+                if (!isCorrect) {
+                    dropZone.classList.add('incorrect');
+                    
+                    setTimeout(() => {
+                        dropZone.classList.remove('incorrect');
+                        
+                        const originalItem = document.querySelector(`.draggable-item[data-id="${itemId}"]`);
+                        if (!originalItem) {
+                            const container = document.getElementById('items-grid');
+                            const div = document.createElement('div');
+                            div.className = 'draggable-item';
+                            div.draggable = true;
+                            div.textContent = text;
+                            div.dataset.category = category;
+                            div.dataset.organism = organism;
+                            div.dataset.id = itemId;
+
+                            div.addEventListener('dragstart', handleDragStart);
+                            div.addEventListener('dragend', handleDragEnd);
+
+                            const activeTab = container.parentElement.querySelector('.tab-btn.active');
+                            if (activeTab) {
+                                const activeText = activeTab.textContent;
+                                const categoryMap = {
+                                    'Forms': 'Disease Forms',
+                                    'Geography': 'Geography',
+                                    'Transmission': 'Transmission',
+                                    'Lab Dx': 'Lab Diagnosis',
+                                    'Treatment': 'Treatment',
+                                    'Pearls': 'Key Pearls'
+                                };
+                                const filterCategory = categoryMap[activeText];
+                                if (filterCategory && category !== filterCategory) {
+                                    div.classList.add('hidden');
+                                }
+                            }
+
+                            container.appendChild(div);
+                        }
+                    }, 500);
+                    
+                    return;
+                } else {
+                    dropZone.classList.add('correct');
+                    stats.correct++;
+                    stats.total++;
+                }
+            }
+
+            dropZone.innerHTML = '';
+
+            const itemDiv = document.createElement('div');
+            itemDiv.className = 'item-in-zone';
+            itemDiv.textContent = text;
+            itemDiv.dataset.category = category;
+            itemDiv.dataset.organism = organism;
+            itemDiv.dataset.itemId = itemId;
+            dropZone.appendChild(itemDiv);
+
+            const originalItem = document.querySelector(`[data-id="${itemId}"]`);
+            if (originalItem && originalItem.parentElement.id === 'items-grid') {
+                originalItem.remove();
+            }
+
+            const key = `${dropZone.dataset.category}-${dropZone.dataset.organism}`;
+            gameState[key] = { category, organism, itemId };
+            
+            if (instantFeedbackEnabled) {
+                updateStats();
+            }
+        }
+
+        function returnItemToPool(item) {
+            const container = document.getElementById('items-grid');
+            
+            const div = document.createElement('div');
+            div.className = 'draggable-item';
+            div.draggable = true;
+            div.textContent = item.textContent;
+            div.dataset.category = item.dataset.category;
+            div.dataset.organism = item.dataset.organism;
+            div.dataset.id = item.dataset.itemId;
+
+            div.addEventListener('dragstart', handleDragStart);
+            div.addEventListener('dragend', handleDragEnd);
+
+            container.appendChild(div);
+            
+            const activeTab = container.parentElement.querySelector('.tab-btn.active');
+            if (activeTab) {
+                const activeFilter = activeTab.textContent;
+                const categoryMap = {
+                    'Forms': 'Disease Forms',
+                    'Geography': 'Geography',
+                    'Transmission': 'Transmission',
+                    'Lab Dx': 'Lab Diagnosis',
+                    'Treatment': 'Treatment',
+                    'Pearls': 'Key Pearls'
+                };
+                const filterCategory = categoryMap[activeFilter];
+                if (filterCategory && div.dataset.category !== filterCategory) {
+                    div.classList.add('hidden');
+                }
+            }
+        }
+
+        function checkAnswers() {
+            if (instantFeedbackEnabled) {
+                const total = stats.total;
+                const correct = stats.correct;
+                if (total > 0) {
+                    showFeedback(correct, total);
+                }
+                return;
+            }
+
+            let correct = 0;
+            let total = 0;
+
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                const item = zone.querySelector('.item-in-zone');
+                if (item) {
+                    total++;
+                    const isCorrect = zone.dataset.category === item.dataset.category &&
+                                    correctAnswers[zone.dataset.category][zone.dataset.organism] === item.textContent;
+                    
+                    if (isCorrect) {
+                        correct++;
+                        zone.classList.add('correct');
+                        zone.classList.remove('incorrect');
+                    } else {
+                        zone.classList.add('incorrect');
+                        zone.classList.remove('correct');
+                    }
+                }
+            });
+
+            stats.correct = correct;
+            stats.total = total;
+            updateStats();
+
+            if (total > 0) {
+                showFeedback(correct, total);
+            }
+        }
+
+        function updateStats() {
+            document.getElementById('correct-count').textContent = stats.correct;
+            document.getElementById('total-count').textContent = stats.total;
+            const accuracy = stats.total > 0 ? Math.round((stats.correct / stats.total) * 100) : 0;
+            document.getElementById('accuracy').textContent = accuracy + '%';
+        }
+
+        function showFeedback(correct, total) {
+            const feedback = document.getElementById('feedback');
+            const scoreDiv = document.getElementById('feedback-score');
+            const percentage = Math.round((correct / total) * 100);
+
+            let message = '';
+            if (percentage === 100) {
+                message = '🦠 Infectious Disease Mastery';
+            } else if (percentage >= 80) {
+                message = '✨ Excellent Knowledge';
+            } else if (percentage >= 60) {
+                message = '📚 Good Progress';
+            } else {
+                message = '📖 Keep Studying';
+            }
+
+            feedback.querySelector('h2').textContent = message;
+            scoreDiv.textContent = `You correctly identified ${correct} of ${total} characteristics (${percentage}%)`;
+            feedback.classList.add('show');
+        }
+
+        function closeFeedback() {
+            document.getElementById('feedback').classList.remove('show');
+        }
+
+        function resetGame() {
+            document.querySelectorAll('.drop-zone').forEach(zone => {
+                zone.innerHTML = '';
+                zone.classList.remove('correct', 'incorrect');
+            });
+
+            gameState = {};
+            stats = { correct: 0, total: 0 };
+            
+            updateStats();
+            createDraggableItems();
+            filterItems('all');
+            closeFeedback();
+        }
+
+        function filterItems(category) {
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((category === 'all' && btn.textContent === 'All') ||
+                    (category === 'Disease Forms' && btn.textContent === 'Forms') ||
+                    (category === 'Geography' && btn.textContent === 'Geography') ||
+                    (category === 'Transmission' && btn.textContent === 'Transmission') ||
+                    (category === 'Lab Diagnosis' && btn.textContent === 'Lab Dx') ||
+                    (category === 'Treatment' && btn.textContent === 'Treatment') ||
+                    (category === 'Key Pearls' && btn.textContent === 'Pearls')) {
+                    btn.classList.add('active');
+                }
+            });
+
+            const items = document.querySelectorAll('.draggable-item');
+            items.forEach(item => {
+                if (category === 'all' || item.dataset.category === category) {
+                    item.classList.remove('hidden');
+                } else {
+                    item.classList.add('hidden');
+                }
+            });
+        }
+
+        // Initialize game
+        initializeGame();
+    </script>
+</body>
+</html>
